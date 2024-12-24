@@ -4,19 +4,31 @@ import pandas as pd
 import matplotlib.pyplot as plt
 import io
 import base64
-import seaborn as sns  # Import seaborn สำหรับสร้างกราฟ Histogram
+import seaborn as sns  # Import seaborn สำหรับสร้าง Histogram
 
 
 def dashboard_view(request):
     try:
-        # Load the data
+        # โหลดข้อมูล
         df = pd.read_csv('data/Electric_Vehicle_Population_Data.csv')
 
-        # Check if required columns exist
-        if 'Electric Vehicle Type' not in df.columns or 'County' not in df.columns or 'Electric Range' not in df.columns:
-            return HttpResponse("The required columns are missing.")
+        # ตรวจสอบว่ามีคอลัมน์ที่จำเป็นหรือไม่
+        required_columns = ['Electric Vehicle Type', 'County', 'Electric Range', 'Model Year']
+        for column in required_columns:
+            if column not in df.columns:
+                return HttpResponse(f"The required column '{column}' is missing.")
 
-        # Generate Pie Chart for Electric Vehicle Type Distribution
+        # Function สำหรับสร้างกราฟและแปลงเป็น Base64
+        def create_chart(figure):
+            buffer = io.BytesIO()
+            plt.savefig(buffer, format='png')
+            buffer.seek(0)
+            image_png = buffer.getvalue()
+            buffer.close()
+            plt.close(figure)
+            return base64.b64encode(image_png).decode('utf-8')
+
+        # 1. Pie Chart - Electric Vehicle Type Distribution
         fig1, ax1 = plt.subplots(figsize=(6, 6))
         df['Electric Vehicle Type'].value_counts().plot(
             kind='pie', 
@@ -25,86 +37,54 @@ def dashboard_view(request):
             fontsize=12
         )
         plt.title("Electric Vehicle Type Distribution")
-        plt.ylabel('')  # Hide Y-axis label
-        plt.xlabel('')  # Hide X-axis label
-        plt.tight_layout()
+        plt.ylabel('')
+        pie_chart = create_chart(fig1)
 
-        # Convert Pie Chart to Base64
-        buffer1 = io.BytesIO()
-        plt.savefig(buffer1, format='png')
-        buffer1.seek(0)
-        pie_chart_png = buffer1.getvalue()
-        buffer1.close()
-        plt.close(fig1)  # Close Pie Chart
-
-        # Generate Bar Chart for Electric Vehicle Type Counts
+        # 2. Bar Chart - Count of Electric Vehicle Types
         fig2, ax2 = plt.subplots(figsize=(8, 5))
-        df['Electric Vehicle Type'].value_counts().plot(kind='bar', ax=ax2)
+        df['Electric Vehicle Type'].value_counts().plot(kind='bar', ax=ax2, color='skyblue')
         plt.title('Count of Electric Vehicle Types')
         plt.xticks(rotation=45)
-        plt.tight_layout()
+        bar_chart = create_chart(fig2)
 
-        # Convert Bar Chart to Base64
-        buffer2 = io.BytesIO()
-        plt.savefig(buffer2, format='png')
-        buffer2.seek(0)
-        bar_chart_png = buffer2.getvalue()
-        buffer2.close()
-        plt.close(fig2)  # Close Bar Chart
-
-        # Group by County and Count Electric Vehicles
+        # 3. County Distribution Chart
         county_counts = df.groupby('County').size().reset_index(name='Electric Vehicle Count')
-
-        # Sort Counties by Count in Descending Order
-        county_counts = county_counts.sort_values(by='Electric Vehicle Count', ascending=False)
-        county_counts = county_counts.head(10)
-
-        # Plot Distribution of Electric Vehicles by County
+        county_counts = county_counts.sort_values(by='Electric Vehicle Count', ascending=False).head(10)
         fig3, ax3 = plt.subplots(figsize=(10, 6))
         ax3.bar(county_counts['County'], county_counts['Electric Vehicle Count'], color='skyblue')
         ax3.set_xlabel('County')
         ax3.set_ylabel('Electric Vehicle Count')
         ax3.set_title('Distribution of Electric Vehicles by County')
         plt.xticks(rotation=90)
-        plt.tight_layout()
+        county_chart = create_chart(fig3)
 
-        # Convert County Bar Chart to Base64
-        buffer3 = io.BytesIO()
-        plt.savefig(buffer3, format='png')
-        buffer3.seek(0)
-        county_chart_png = buffer3.getvalue()
-        buffer3.close()
-        plt.close(fig3)  # Close County Bar Chart
-
-        # Generate Histogram for Electric Range
+        # 4. Histogram - Electric Range
         fig4, ax4 = plt.subplots(figsize=(10, 6))
         sns.histplot(df['Electric Range'], bins=20, kde=True, color='red', ax=ax4)
         ax4.set_xlabel('Electric Range (miles)')
         ax4.set_ylabel('Frequency')
         ax4.set_title('Distribution of Electric Range for Electric Vehicles')
-        plt.tight_layout()
+        electric_range_chart = create_chart(fig4)
 
-        # Convert Histogram to Base64
-        buffer4 = io.BytesIO()
-        plt.savefig(buffer4, format='png')
-        buffer4.seek(0)
-        electric_range_chart_png = buffer4.getvalue()
-        buffer4.close()
-        plt.close(fig4)  # Close Electric Range Histogram
+        # 5. Line Chart - Trend in Electric Vehicle Manufacturing
+        yearly_counts = df.groupby('Model Year').size().reset_index(name='Electric Vehicle Count')
+        fig5, ax5 = plt.subplots(figsize=(10, 6))
+        ax5.plot(yearly_counts['Model Year'], yearly_counts['Electric Vehicle Count'], marker='o', color='red')
+        ax5.set_xlabel('Model Year')
+        ax5.set_ylabel('Electric Vehicle Count')
+        ax5.set_title('Trend in Electric Vehicle Manufacturing Over Time')
+        ax5.grid(True)
+        trend_chart = create_chart(fig5)
 
-        # Convert images to Base64
-        pie_chart = base64.b64encode(pie_chart_png).decode('utf-8')
-        bar_chart = base64.b64encode(bar_chart_png).decode('utf-8')
-        county_chart = base64.b64encode(county_chart_png).decode('utf-8')
-        electric_range_chart = base64.b64encode(electric_range_chart_png).decode('utf-8')
-
-        # Send charts to the template
+        # ส่งกราฟไปยัง Template
         return render(request, 'dash1.html', {
             'pie_chart': pie_chart,
             'bar_chart': bar_chart,
             'county_chart': county_chart,
-            'electric_range_chart': electric_range_chart
+            'electric_range_chart': electric_range_chart,
+            'trend_chart': trend_chart
         })
+
     except FileNotFoundError:
         return HttpResponse("Data file not found.")
     except pd.errors.EmptyDataError:
