@@ -8,22 +8,28 @@
 <body>
     <h1 style="text-align: center;">Electric Vehicle Dashboard</h1>
 
-    <!-- แสดง Pie Chart -->
+    <!-- Pie Chart -->
     <div style="text-align: center;">
         <h2>Electric Vehicle Type Distribution</h2>
         <img src="data:image/png;base64,{{ pie_chart }}" alt="Electric Vehicle Pie Chart">
     </div>
 
-    <!-- แสดง Bar Chart -->
+    <!-- Bar Chart -->
     <div style="text-align: center; margin-top: 30px;">
         <h2>Count of Electric Vehicle Types</h2>
         <img src="data:image/png;base64,{{ bar_chart }}" alt="Electric Vehicle Bar Chart">
     </div>
 
-    <!-- แสดง Bar Chart -->
+    <!-- County Bar Chart -->
     <div style="text-align: center; margin-top: 30px;">
         <h2>Distribution of Electric Vehicles by County</h2>
         <img src="data:image/png;base64,{{ county_chart }}" alt="Electric Vehicle County Chart">
+    </div>
+
+    <!-- Histogram for Electric Range -->
+    <div style="text-align: center; margin-top: 30px;">
+        <h2>Distribution of Electric Range for Electric Vehicles</h2>
+        <img src="data:image/png;base64,{{ electric_range_chart }}" alt="Electric Range Histogram">
     </div>
 </body>
 </html>

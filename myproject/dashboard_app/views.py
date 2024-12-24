@@ -4,6 +4,8 @@ import pandas as pd
 import matplotlib.pyplot as plt
 import io
 import base64
+import seaborn as sns  # Import seaborn สำหรับสร้างกราฟ Histogram
+
 
 def dashboard_view(request):
     try:
@@ -11,7 +13,7 @@ def dashboard_view(request):
         df = pd.read_csv('data/Electric_Vehicle_Population_Data.csv')
 
         # Check if required columns exist
-        if 'Electric Vehicle Type' not in df.columns or 'County' not in df.columns:
+        if 'Electric Vehicle Type' not in df.columns or 'County' not in df.columns or 'Electric Range' not in df.columns:
             return HttpResponse("The required columns are missing.")
 
         # Generate Pie Chart for Electric Vehicle Type Distribution
@@ -74,16 +76,34 @@ def dashboard_view(request):
         buffer3.close()
         plt.close(fig3)  # Close County Bar Chart
 
+        # Generate Histogram for Electric Range
+        fig4, ax4 = plt.subplots(figsize=(10, 6))
+        sns.histplot(df['Electric Range'], bins=20, kde=True, color='red', ax=ax4)
+        ax4.set_xlabel('Electric Range (miles)')
+        ax4.set_ylabel('Frequency')
+        ax4.set_title('Distribution of Electric Range for Electric Vehicles')
+        plt.tight_layout()
+
+        # Convert Histogram to Base64
+        buffer4 = io.BytesIO()
+        plt.savefig(buffer4, format='png')
+        buffer4.seek(0)
+        electric_range_chart_png = buffer4.getvalue()
+        buffer4.close()
+        plt.close(fig4)  # Close Electric Range Histogram
+
         # Convert images to Base64
         pie_chart = base64.b64encode(pie_chart_png).decode('utf-8')
         bar_chart = base64.b64encode(bar_chart_png).decode('utf-8')
         county_chart = base64.b64encode(county_chart_png).decode('utf-8')
+        electric_range_chart = base64.b64encode(electric_range_chart_png).decode('utf-8')
 
         # Send charts to the template
         return render(request, 'dash1.html', {
             'pie_chart': pie_chart,
             'bar_chart': bar_chart,
-            'county_chart': county_chart
+            'county_chart': county_chart,
+            'electric_range_chart': electric_range_chart
         })
     except FileNotFoundError:
         return HttpResponse("Data file not found.")
@@ -91,4 +111,3 @@ def dashboard_view(request):
         return HttpResponse("Data file is empty.")
     except Exception as e:
         return HttpResponse(f"An unexpected error occurred: {str(e)}")
-
