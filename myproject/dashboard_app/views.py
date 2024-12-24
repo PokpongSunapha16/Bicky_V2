@@ -7,14 +7,14 @@ import base64
 
 def dashboard_view(request):
     try:
-        # โหลดข้อมูล
+        # Load the data
         df = pd.read_csv('data/Electric_Vehicle_Population_Data.csv')
 
-        # ตรวจสอบว่ามีคอลัมน์ 'Electric Vehicle Type' หรือไม่
-        if 'Electric Vehicle Type' not in df.columns:
-            return HttpResponse("The required column 'Electric Vehicle Type' is missing.")
+        # Check if required columns exist
+        if 'Electric Vehicle Type' not in df.columns or 'County' not in df.columns:
+            return HttpResponse("The required columns are missing.")
 
-        # สร้างกราฟ Pie Chart
+        # Generate Pie Chart for Electric Vehicle Type Distribution
         fig1, ax1 = plt.subplots(figsize=(6, 6))
         df['Electric Vehicle Type'].value_counts().plot(
             kind='pie', 
@@ -23,41 +23,67 @@ def dashboard_view(request):
             fontsize=12
         )
         plt.title("Electric Vehicle Type Distribution")
-        plt.ylabel('')  # ซ่อน Y-axis label
-        plt.xlabel('')  # ซ่อน X-axis label
+        plt.ylabel('')  # Hide Y-axis label
+        plt.xlabel('')  # Hide X-axis label
         plt.tight_layout()
 
-        # แปลง Pie Chart เป็น Base64
+        # Convert Pie Chart to Base64
         buffer1 = io.BytesIO()
         plt.savefig(buffer1, format='png')
         buffer1.seek(0)
         pie_chart_png = buffer1.getvalue()
         buffer1.close()
-        plt.close(fig1)  # ปิด Pie Chart
+        plt.close(fig1)  # Close Pie Chart
 
-        # สร้างกราฟ Bar Chart
+        # Generate Bar Chart for Electric Vehicle Type Counts
         fig2, ax2 = plt.subplots(figsize=(8, 5))
         df['Electric Vehicle Type'].value_counts().plot(kind='bar', ax=ax2)
         plt.title('Count of Electric Vehicle Types')
         plt.xticks(rotation=45)
         plt.tight_layout()
 
-        # แปลง Bar Chart เป็น Base64
+        # Convert Bar Chart to Base64
         buffer2 = io.BytesIO()
         plt.savefig(buffer2, format='png')
         buffer2.seek(0)
         bar_chart_png = buffer2.getvalue()
         buffer2.close()
-        plt.close(fig2)  # ปิด Bar Chart
+        plt.close(fig2)  # Close Bar Chart
 
-        # แปลงภาพเป็น Base64
+        # Group by County and Count Electric Vehicles
+        county_counts = df.groupby('County').size().reset_index(name='Electric Vehicle Count')
+
+        # Sort Counties by Count in Descending Order
+        county_counts = county_counts.sort_values(by='Electric Vehicle Count', ascending=False)
+        county_counts = county_counts.head(10)
+
+        # Plot Distribution of Electric Vehicles by County
+        fig3, ax3 = plt.subplots(figsize=(10, 6))
+        ax3.bar(county_counts['County'], county_counts['Electric Vehicle Count'], color='skyblue')
+        ax3.set_xlabel('County')
+        ax3.set_ylabel('Electric Vehicle Count')
+        ax3.set_title('Distribution of Electric Vehicles by County')
+        plt.xticks(rotation=90)
+        plt.tight_layout()
+
+        # Convert County Bar Chart to Base64
+        buffer3 = io.BytesIO()
+        plt.savefig(buffer3, format='png')
+        buffer3.seek(0)
+        county_chart_png = buffer3.getvalue()
+        buffer3.close()
+        plt.close(fig3)  # Close County Bar Chart
+
+        # Convert images to Base64
         pie_chart = base64.b64encode(pie_chart_png).decode('utf-8')
         bar_chart = base64.b64encode(bar_chart_png).decode('utf-8')
+        county_chart = base64.b64encode(county_chart_png).decode('utf-8')
 
-        # ส่งกราฟไปยัง template
+        # Send charts to the template
         return render(request, 'dash1.html', {
             'pie_chart': pie_chart,
-            'bar_chart': bar_chart
+            'bar_chart': bar_chart,
+            'county_chart': county_chart
         })
     except FileNotFoundError:
         return HttpResponse("Data file not found.")
@@ -65,3 +91,4 @@ def dashboard_view(request):
         return HttpResponse("Data file is empty.")
     except Exception as e:
         return HttpResponse(f"An unexpected error occurred: {str(e)}")
+
