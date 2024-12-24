@@ -7,8 +7,17 @@
 </head>
 <body>
     <h1 style="text-align: center;">Electric Vehicle Dashboard</h1>
+
+    <!-- แสดง Pie Chart -->
     <div style="text-align: center;">
-        <img src="data:image/png;base64,{{ graph }}" alt="Electric Vehicle Chart">
+        <h2>Electric Vehicle Type Distribution</h2>
+        <img src="data:image/png;base64,{{ pie_chart }}" alt="Electric Vehicle Pie Chart">
+    </div>
+
+    <!-- แสดง Bar Chart -->
+    <div style="text-align: center; margin-top: 30px;">
+        <h2>Count of Electric Vehicle Types</h2>
+        <img src="data:image/png;base64,{{ bar_chart }}" alt="Electric Vehicle Bar Chart">
     </div>
 </body>
 </html>
