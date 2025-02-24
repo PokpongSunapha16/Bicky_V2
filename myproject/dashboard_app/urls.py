@@ -1,6 +1,10 @@
 from django.urls import path
-from . import views
+from .views import home_view, dashboard_view, register_view, login_view, logout_view
 
 urlpatterns = [
-    path('dashboard/', views.dashboard_view, name='dashboard'),
+    path("", home_view, name="home"),  # ✅ หน้าแรกต้องมีเส้นทางนี้
+    path("dashboard/", dashboard_view, name="dashboard"),
+    path("register/", register_view, name="register"),
+    path("login/", login_view, name="login"),
+    path("logout/", logout_view, name="logout"),
 ]

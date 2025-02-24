@@ -11,9 +11,12 @@ https://docs.djangoproject.com/en/5.1/ref/settings/
 """
 
 from pathlib import Path
+import os
 
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
 BASE_DIR = Path(__file__).resolve().parent.parent
+
+
 
 
 # Quick-start development settings - unsuitable for production
@@ -70,35 +73,44 @@ TEMPLATES = [
 
 WSGI_APPLICATION = 'myproject.wsgi.application'
 
+AUTH_USER_MODEL = "dashboard_app.CustomUser"
 
 # Database
 # https://docs.djangoproject.com/en/5.1/ref/settings/#databases
 
 DATABASES = {
     'default': {
-        'ENGINE': 'django.db.backends.sqlite3',
-        'NAME': BASE_DIR / 'db.sqlite3',
+        'ENGINE': 'django.db.backends.mysql',  # ✅ เปลี่ยนเป็น MySQL
+        'NAME': 'myproject_dash',  # ✅ ชื่อฐานข้อมูล
+        'USER': 'root',  # ✅ ชื่อผู้ใช้ MySQL
+        'PASSWORD': '1234',  # ✅ รหัสผ่านของ MySQL
+        'HOST': 'localhost',  # ✅ ใช้ localhost หรือ IP ของเซิร์ฟเวอร์ MySQL
+        'PORT': '3306',  # ✅ พอร์ตเริ่มต้นของ MySQL
+        'OPTIONS': {
+            'charset': 'utf8mb4',  # ✅ รองรับภาษาไทยและ Emoji
+        },
     }
 }
+
 
 
 # Password validation
 # https://docs.djangoproject.com/en/5.1/ref/settings/#auth-password-validators
 
-AUTH_PASSWORD_VALIDATORS = [
-    {
-        'NAME': 'django.contrib.auth.password_validation.UserAttributeSimilarityValidator',
-    },
-    {
-        'NAME': 'django.contrib.auth.password_validation.MinimumLengthValidator',
-    },
-    {
-        'NAME': 'django.contrib.auth.password_validation.CommonPasswordValidator',
-    },
-    {
-        'NAME': 'django.contrib.auth.password_validation.NumericPasswordValidator',
-    },
-]
+# AUTH_PASSWORD_VALIDATORS = [
+#     {
+#         'NAME': 'django.contrib.auth.password_validation.UserAttributeSimilarityValidator',
+#     },
+#     {
+#         'NAME': 'django.contrib.auth.password_validation.MinimumLengthValidator',
+#     },
+#     {
+#         'NAME': 'django.contrib.auth.password_validation.CommonPasswordValidator',
+#     },
+#     {
+#         'NAME': 'django.contrib.auth.password_validation.NumericPasswordValidator',
+#     },
+# ]
 
 
 # Internationalization
@@ -116,7 +128,18 @@ USE_TZ = True
 # Static files (CSS, JavaScript, Images)
 # https://docs.djangoproject.com/en/5.1/howto/static-files/
 
-STATIC_URL = 'static/'
+# แก้ BASE_DIR ให้ถูกต้อง
+BASE_DIR = Path(__file__).resolve().parent.parent
+
+STATIC_URL = "/static/"
+
+# ตรวจสอบให้แน่ใจว่า static/ อยู่ถูกที่
+STATICFILES_DIRS = [
+    Path(BASE_DIR).parent / "static",  # ✅ ให้ Django ใช้ static ใน Bicky_V2/static/
+]
+
+# ใช้ STATIC_ROOT เพื่อรองรับ collectstatic
+STATIC_ROOT = BASE_DIR / "staticfiles"
 
 # Default primary key field type
 # https://docs.djangoproject.com/en/5.1/ref/settings/#default-auto-field
