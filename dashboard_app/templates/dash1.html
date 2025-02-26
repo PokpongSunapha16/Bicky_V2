@@ -1,0 +1,42 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Electric Vehicle Dashboard</title>
+</head>
+<body>
+    <h1 style="text-align: center;">Electric Vehicle Dashboard</h1>
+
+    <!-- Pie Chart -->
+    <div style="text-align: center;">
+        <h2>Electric Vehicle Type Distribution</h2>
+        <img src="data:image/png;base64,{{ pie_chart }}" alt="Electric Vehicle Pie Chart">
+    </div>
+
+    <!-- Bar Chart -->
+    <div style="text-align: center; margin-top: 30px;">
+        <h2>Count of Electric Vehicle Types</h2>
+        <img src="data:image/png;base64,{{ bar_chart }}" alt="Electric Vehicle Bar Chart">
+    </div>
+
+    <!-- County Bar Chart -->
+    <div style="text-align: center; margin-top: 30px;">
+        <h2>Distribution of Electric Vehicles by County</h2>
+        <img src="data:image/png;base64,{{ county_chart }}" alt="Electric Vehicle County Chart">
+    </div>
+
+    <!-- Histogram for Electric Range -->
+    <div style="text-align: center; margin-top: 30px;">
+        <h2>Distribution of Electric Range for Electric Vehicles</h2>
+        <img src="data:image/png;base64,{{ electric_range_chart }}" alt="Electric Range Histogram">
+    </div>
+
+
+    <!-- Display Trend Chart -->
+    <div style="text-align: center; margin-top: 30px;">
+        <h2>Trend in Electric Vehicle Manufacturing Over Time</h2>
+        <img src="data:image/png;base64,{{ trend_chart }}" alt="Electric Vehicle Trend Chart">
+    </div>
+</body>
+</html>

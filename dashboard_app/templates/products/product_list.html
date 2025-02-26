@@ -1,0 +1,36 @@
+{% load static %}
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>รายการสินค้า</title>
+    <link rel="stylesheet" href="{% static 'styles/product_list.css' %}">
+</head>
+<body>
+    <h1>รายการสินค้า</h1>
+    <a href="{% url 'add_product' %}" class="btn">เพิ่มสินค้า</a>
+    <table border="1">
+        <tr>
+            <th>ชื่อสินค้า</th>
+            <th>รายละเอียด</th>
+            <th>ราคา</th>
+            <th>สต็อก</th>
+            <th>การจัดการ</th>
+        </tr>
+        {% for product in products %}
+        <tr>
+            <td>{{ product.name }}</td>
+            <td>{{ product.description }}</td>
+            <td>{{ product.price }}</td>
+            <td>{{ product.stock }}</td>
+            <td>
+                <a href="{% url 'edit_product' product.id %}" class="btn">แก้ไข</a>
+                <a href="{% url 'delete_product' product.id %}" class="btn-delete" onclick="return confirm('คุณแน่ใจหรือไม่?');">ลบ</a>
+            </td>
+        </tr>
+        {% endfor %}
+    </table>
+</body>
+</html>
