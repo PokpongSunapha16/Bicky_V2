@@ -1,7 +1,6 @@
 {% extends "base.html" %}
 {% block content %}
 <div class="container">
-
     <svg width="50" height="50" viewBox="0 0 24 24" fill="none" stroke="#4158d0" stroke-width="2">
         <path d="M22 12h-6l-2 3h-4l-2-3H2"/>
         <rect x="6" y="4" width="12" height="16" rx="2"/>
@@ -36,6 +35,7 @@
 
     <form method="POST">
         {% csrf_token %}
+
         <div class="form-group">
             <label for="username">ชื่อผู้ใช้</label>
             <input type="text" id="username" name="username" value="{{ form.username.value|default_if_none:'' }}" placeholder="สร้างชื่อผู้ใช้ของคุณ" required autocomplete="off">
@@ -54,6 +54,15 @@
         <div class="form-group">
             <label for="password2">ยืนยันรหัสผ่าน</label>
             <input type="password" id="password2" name="password2" placeholder="ยืนยันรหัสผ่านของคุณ" required autocomplete="new-password">
+        </div>
+
+        <!-- ✅ เพิ่มตัวเลือกเลือก Role -->
+        <div class="form-group">
+            <label for="role">สมัครเป็น</label>
+            <select id="role" name="role" required>
+                <option value="customer" selected>🛒 ลูกค้า</option>
+                <option value="seller">🛍 ผู้ขาย</option>
+            </select>
         </div>
 
         <button type="submit" class="btn">สมัครสมาชิก</button>

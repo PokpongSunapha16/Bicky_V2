@@ -1,0 +1,40 @@
+{% extends "base.html" %}
+{% block content %}
+<h2>🛒 ตะกร้าสินค้า</h2>
+
+{% if cart_items %}
+<table>
+    <tr>
+        <th>สินค้า</th>
+        <th>จำนวน</th>
+        <th>ราคา</th>
+        <th>รวม</th>
+        <th>จัดการ</th>
+    </tr>
+    {% for item in cart_items %}
+    <tr>
+        <td>{{ item.product.name }}</td>
+        <td>
+            <form method="POST" action="{% url 'update_cart' item.id %}">
+                {% csrf_token %}
+                <input type="number" name="quantity" value="{{ item.quantity }}" min="1">
+                <button type="submit">อัปเดต</button>
+            </form>
+        </td>
+        <td>{{ item.product.price }}</td>
+        <td>{{ item.total_price }}</td>
+        <td>
+            <a href="{% url 'remove_from_cart' item.id %}">🗑 ลบ</a>
+        </td>
+    </tr>
+    {% endfor %}
+</table>
+
+<h3>💰 ราคารวม: {{ total_price }}</h3>
+<a href="{% url 'checkout' %}" class="btn btn-primary">📦 ดำเนินการชำระเงิน</a>
+
+{% else %}
+<p>🛒 ตะกร้าสินค้าว่างเปล่า!</p>
+{% endif %}
+
+{% endblock %}

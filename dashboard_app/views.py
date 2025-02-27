@@ -10,7 +10,8 @@ from django.contrib import messages
 from .forms import RegisterForm
 from django.contrib.auth.decorators import login_required
 from django.shortcuts import render, redirect, get_object_or_404
-from .models import Product
+from .models import Product , Cart
+from .decorators import admin_or_seller_required
 
 def home_view(request):
     return render(request, "login/home.html")
@@ -109,17 +110,22 @@ def register_view(request):
     if request.method == "POST":
         form = RegisterForm(request.POST)
         if form.is_valid():
-            user = form.save(commit=False)  # ✅ ยังไม่บันทึกลงฐานข้อมูล
-            user.role = "member"  # ✅ กำหนดค่า role เป็น "member" อัตโนมัติ
-            user.set_password(form.cleaned_data["password1"])  # ✅ เข้ารหัสรหัสผ่าน
-            user.save()  # ✅ บันทึกข้อมูลลงฐานข้อมูล
-            login(request, user)  # ✅ ล็อกอินอัตโนมัติหลังสมัคร
-            return redirect("product_list")  # ✅ ไปยังหน้า Dashboard
+            user = form.save(commit=False)  
+            selected_role = request.POST.get("role")  # ดึงค่า role จากฟอร์ม
+            if selected_role in ["seller", "customer"]:
+                user.role = selected_role  
+            else:
+                user.role = "customer"  # ถ้าไม่เลือกให้เป็น customer โดยค่าเริ่มต้น
+            
+            user.set_password(form.cleaned_data["password1"])  # เข้ารหัสรหัสผ่าน
+            user.save()  
+            login(request, user)  
+            return redirect("product_list")  
         else:
             messages.error(request, "❌ กรุณาตรวจสอบข้อมูลที่กรอก!")
     else:
         form = RegisterForm()
-    
+
     return render(request, "login/register.html", {"form": form})
 
 def login_view(request):
@@ -151,6 +157,7 @@ def product_list(request):
 
 # ✅ เพิ่มสินค้าใหม่
 @login_required
+@admin_or_seller_required
 def add_product(request):
     if request.method == "POST":
         name = request.POST["name"]
@@ -163,7 +170,7 @@ def add_product(request):
             description=description,
             price=price,
             stock=stock,
-            seller=request.user  # ✅ กำหนด seller เป็น User ที่ล็อกอินอยู่
+            seller=request.user  
         )
         return redirect("product_list")
 
@@ -172,6 +179,7 @@ def add_product(request):
 
 # ✅ แก้ไขสินค้า
 @login_required
+@admin_or_seller_required
 def edit_product(request, product_id):
     product = get_object_or_404(Product, id=product_id)
 
@@ -187,11 +195,18 @@ def edit_product(request, product_id):
 
 # ✅ ลบสินค้า
 @login_required
+@admin_or_seller_required
 def delete_product(request, product_id):
-    product = get_object_or_404(Product, id=product_id)  # ✅ ถ้าไม่มีสินค้าจะขึ้น 404 ทันที
+    product = get_object_or_404(Product, id=product_id)
 
     if request.method == "POST":
         product.delete()
-        return redirect("product_list")  # ✅ กลับไปยังหน้ารายการสินค้า
+        return redirect("product_list")  
 
     return render(request, "products/delete_product.html", {"product": product})
+
+@login_required
+def view_cart(request):
+    cart_items = Cart.objects.filter(customer=request.user)
+    total_price = sum(item.total_price() for item in cart_items)
+    return render(request, 'cart.html', {'cart_items': cart_items, 'total_price': total_price})

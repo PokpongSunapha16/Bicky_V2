@@ -1,19 +1,25 @@
-from django.contrib.auth.models import AbstractUser
-from django.db import models
-
 from django.contrib.auth.models import AbstractUser, Group, Permission
 from django.db import models
 
 class CustomUser(AbstractUser):
     ROLE_CHOICES = [
-        ("user", "User"),
-        ("member", "Member"),
+        ("customer", "Customer"),
+        ("seller", "Seller"),
         ("admin", "Admin"),
     ]
-    role = models.CharField(max_length=10, choices=ROLE_CHOICES, default="member")
+    role = models.CharField(max_length=10, choices=ROLE_CHOICES, default="customer")
 
     groups = models.ManyToManyField(Group, related_name="customuser_groups", blank=True)
     user_permissions = models.ManyToManyField(Permission, related_name="customuser_permissions", blank=True)
+
+    def is_seller(self):
+        return self.role == "seller"
+
+    def is_customer(self):
+        return self.role == "customer"
+
+    def is_admin(self):
+        return self.role == "admin"
 
 
 class Profile(models.Model):
@@ -26,7 +32,8 @@ class Profile(models.Model):
     def __str__(self):
         return self.title
 
-# Product Model (แก้ไขให้ใช้ CustomUser เป็น Seller)
+
+# ✅ Product Model (ใช้ CustomUser เป็น Seller)
 class Product(models.Model):
     seller = models.ForeignKey(CustomUser, on_delete=models.CASCADE, related_name="products")
     name = models.CharField(max_length=255)
@@ -39,39 +46,43 @@ class Product(models.Model):
     def __str__(self):
         return self.name
 
-# Cart Model
+
+# ✅ Cart Model
 class Cart(models.Model):
-    customer = models.ForeignKey(CustomUser, on_delete=models.CASCADE)
+    customer = models.ForeignKey(CustomUser, on_delete=models.CASCADE, related_name="cart")
     product = models.ForeignKey(Product, on_delete=models.CASCADE)
     quantity = models.IntegerField(default=1)
 
-# Order Model
+
+# ✅ Order Model
 class Order(models.Model):
     STATUS_CHOICES = [
         ('pending', 'Pending'),
         ('shipped', 'Shipped'),
         ('delivered', 'Delivered'),
     ]
-    customer = models.ForeignKey(CustomUser, on_delete=models.CASCADE)
+    customer = models.ForeignKey(CustomUser, on_delete=models.CASCADE, related_name="orders")
     total_amount = models.DecimalField(max_digits=10, decimal_places=2)
     status = models.CharField(max_length=10, choices=STATUS_CHOICES, default='pending')
     created_at = models.DateTimeField(auto_now_add=True)
 
-# Order Items Model
+
+# ✅ Order Items Model
 class OrderItem(models.Model):
-    order = models.ForeignKey(Order, on_delete=models.CASCADE)
+    order = models.ForeignKey(Order, on_delete=models.CASCADE, related_name="items")
     product = models.ForeignKey(Product, on_delete=models.CASCADE)
     quantity = models.IntegerField()
     price = models.DecimalField(max_digits=10, decimal_places=2)
 
-# Payment Model
+
+# ✅ Payment Model
 class Payment(models.Model):
     PAYMENT_METHODS = [
         ('cod', 'Cash on Delivery'),
         ('paypal', 'PayPal'),
         ('stripe', 'Stripe'),
     ]
-    order = models.OneToOneField(Order, on_delete=models.CASCADE)
+    order = models.OneToOneField(Order, on_delete=models.CASCADE, related_name="payment")
     payment_method = models.CharField(max_length=10, choices=PAYMENT_METHODS)
     transaction_id = models.CharField(max_length=255, blank=True, null=True)
     paid = models.BooleanField(default=False)
