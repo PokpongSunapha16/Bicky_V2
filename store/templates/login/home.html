@@ -1,0 +1,32 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="th">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>{% block title %}To-Do List{% endblock %}</title>
+    <link rel="stylesheet" href="{% static 'styles/home.css' %}">
+</head>
+<body>
+    <nav>
+        <a href="{% url 'home' %}">หน้าแรก</a> |
+        <a href="{% url 'register' %}">สมัครสมาชิก</a> |
+        <a href="{% url 'login' %}">เข้าสู่ระบบ</a>
+    </nav>
+
+
+    <div class="logo">
+        <svg width="50" height="50" viewBox="0 0 24 24" fill="none" stroke="#FFFFFF" stroke-width="2">
+            <path d="M22 12h-6l-2 3h-4l-2-3H2"/>
+            <rect x="6" y="4" width="12" height="16" rx="2"/>
+            <line x1="12" y1="8" x2="16" y2="8"/>
+            <line x1="12" y1="12" x2="16" y2="12"/>
+            <line x1="12" y1="16" x2="14" y2="16"/>
+        </svg>
+        <h1 style="color: white;">TaskFlow</h1>
+    </div>
+        {% block content %}
+        {% endblock %}
+    </div>
+</body>
+</html>

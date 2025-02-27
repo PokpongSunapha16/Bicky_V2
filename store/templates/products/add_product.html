@@ -1,0 +1,26 @@
+{% load static %}
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>เพิ่มสินค้า</title>
+    <link rel="stylesheet" href="{% static 'styles/add_product.css' %}">
+</head>
+<body>
+    <h1>เพิ่มสินค้า</h1>
+    <form method="POST">
+        {% csrf_token %}
+        <label>ชื่อสินค้า:</label>
+        <input type="text" name="name" required>
+        <label>รายละเอียด:</label>
+        <textarea name="description"></textarea>
+        <label>ราคา:</label>
+        <input type="number" name="price" required>
+        <label>สต็อก:</label>
+        <input type="number" name="stock" required>
+        <button type="submit">บันทึก</button>
+    </form>
+</body>
+</html>
