@@ -1,6 +1,0 @@
-django
-dash
-pandas
-matplotlib
-mysqlclient
-seaborn
