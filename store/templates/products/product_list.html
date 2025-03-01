@@ -1,53 +1,67 @@
 {% load static %}
 
 <!DOCTYPE html>
-<html lang="en">
+<html lang="th">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>รายการสินค้า</title>
+    <title>📦 รายการสินค้า</title>
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css">
     <link rel="stylesheet" href="{% static 'styles/product_list.css' %}">
 </head>
 <body>
-    <h1>รายการสินค้า</h1>
-    <a href="{% url 'add_product' %}" class="btn">เพิ่มสินค้า</a>
-    <table>
-        <thead>
-            <tr>
-                <th>รูปภาพ</th> <!-- ✅ เพิ่มคอลัมน์รูปภาพ -->
-                <th>ชื่อสินค้า</th>
-                <th>รายละเอียด</th>
-                <th>ราคา</th>
-                <th>สต๊อก</th>
-                <th>การจัดการ</th>
-            </tr>
-        </thead>
-        <tbody>
-            {% for product in products %}
-            <tr>
-                <td>
-                    {% if product.image %}
-                        <p>URL: {{ product.image.url }}</p>  <!-- ✅ Debug: แสดง URL ของรูป -->
-                        <img src="{{ product.image.url }}" alt="{{ product.name }}" style="width: 80px; height: auto;">
 
-                    {% else %}
-                        <p>ไม่มีรูป</p>
-                    {% endif %}
-                </td>                                
-                <td>{{ product.name }}</td>
-                <td>{{ product.description }}</td>
-                <td>{{ product.price }}</td>
-                <td>{{ product.stock }}</td>
-                <td>
-                    <a href="{% url 'edit_product' product.id %}" class="btn btn-success">แก้ไข</a>
-                    <form action="{% url 'delete_product' product.id %}" method="post" style="display:inline;">
-                        {% csrf_token %}
-                        <button type="submit" class="btn btn-danger">ลบ</button>
-                    </form>
-                </td>
-            </tr>
-            {% endfor %}
-        </tbody>
-    </table>    
+    <div class="container mt-4">
+        <h2 class="text-center">📦 รายการสินค้า</h2>
+
+        <!-- ✅ ปุ่มย้อนกลับไปหน้า Home -->
+        <a href="{% url 'home' %}" class="btn btn-secondary mb-3">⬅️ ย้อนกลับ</a>
+
+        <!-- ✅ ปุ่มเพิ่มสินค้า -->
+        <a href="{% url 'add_product' %}" class="btn btn-primary mb-3">➕ เพิ่มสินค้า</a>
+
+        <!-- ✅ ตารางแสดงรายการสินค้า -->
+        <table class="table table-bordered table-hover">
+            <thead class="table-primary">
+                <tr>
+                    <th>รูปภาพ</th> 
+                    <th>ชื่อสินค้า</th>
+                    <th>รายละเอียด</th>
+                    <th>ราคา</th>
+                    <th>สต๊อก</th>
+                    <th>การจัดการ</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for product in products %}
+                <tr>
+                    <td class="text-center">
+                        {% if product.image %}
+                            <img src="{{ product.image.url }}" alt="{{ product.name }}" width="100" class="img-thumbnail">
+                        {% else %}
+                            <p class="text-muted">ไม่มีรูป</p>
+                        {% endif %}
+                    </td>
+                    <td>{{ product.name }}</td>
+                    <td>{{ product.description }}</td>
+                    <td>{{ product.price|floatformat:2 }} บาท</td>
+                    <td>{{ product.stock }}</td>
+                    <td>
+                        <a href="{% url 'edit_product' product.id %}" class="btn btn-warning btn-sm">✏️ แก้ไข</a>
+                        <form action="{% url 'delete_product' product.id %}" method="post" class="d-inline">
+                            {% csrf_token %}
+                            <button type="submit" class="btn btn-danger btn-sm" onclick="return confirm('คุณต้องการลบสินค้านี้หรือไม่?')">🗑️ ลบ</button>
+                        </form>
+                    </td>
+                </tr>
+                {% empty %}
+                <tr>
+                    <td colspan="6" class="text-center text-muted">❌ ไม่มีสินค้าในระบบ</td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+
 </body>
 </html>
