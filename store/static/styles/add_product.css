@@ -1,44 +1,34 @@
+/* static/styles/add_product.css */
+
 body {
-    font-family: Arial, sans-serif;
-    background-color: #eef;
-    margin: 20px;
-    padding: 20px;
+    background-color: #f8f9fa;
+    font-family: 'Arial', sans-serif;
 }
 
-h1 {
-    color: #333;
+.container {
+    max-width: 600px;
 }
 
-form {
-    background: white;
-    padding: 20px;
-    border-radius: 8px;
-    max-width: 400px;
-    margin: auto;
+.card {
+    border-radius: 10px;
+}
+
+h2 {
+    color: #007bff;
 }
 
 label {
-    display: block;
-    margin-top: 10px;
+    font-weight: bold;
 }
 
-input, textarea {
-    width: 100%;
-    padding: 8px;
-    margin-top: 5px;
-    border: 1px solid #ccc;
-    border-radius: 4px;
+.btn {
+    width: 48%;
 }
 
-button {
-    margin-top: 15px;
-    padding: 10px 15px;
+.btn-success {
     background-color: #28a745;
-    color: white;
-    border: none;
-    cursor: pointer;
 }
 
-button:hover {
+.btn-success:hover {
     background-color: #218838;
 }

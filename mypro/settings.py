@@ -30,10 +30,11 @@ MIDDLEWARE = [
 ]
 
 ROOT_URLCONF = 'mypro.urls'
+
 TEMPLATES = [
     {
         'BACKEND': 'django.template.backends.django.DjangoTemplates',
-        'DIRS': [BASE_DIR / "templates"],  # ✅ เพิ่ม templates directory
+        'DIRS': [BASE_DIR / "store/templates"],  # ✅ ตรวจสอบให้แน่ใจว่า path นี้มีอยู่
         'APP_DIRS': True,
         'OPTIONS': {
             'context_processors': [
@@ -45,6 +46,7 @@ TEMPLATES = [
         },
     },
 ]
+
 
 WSGI_APPLICATION = 'mypro.wsgi.application'
 AUTH_USER_MODEL = "store.CustomUser"

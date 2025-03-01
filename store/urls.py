@@ -11,7 +11,6 @@ urlpatterns = [
     path("register/", register_view, name="register"),
     path("login/", login_view, name="login"),
 
-
    # ✅ ระบบจัดการสินค้า
     path("products/", product_list, name="product_list"),
     path("products/add/", add_product, name="add_product"),
@@ -28,5 +27,20 @@ urlpatterns = [
     path('cart/remove/<int:cart_id>/', remove_from_cart, name='remove_from_cart'),
     path('cart/update/<int:cart_id>/', update_cart_quantity, name='update_cart_quantity'),
     path("cart/checkout/", checkout, name="checkout"),
+
+    path("cart/confirm_order/", confirm_order, name="confirm_order"),
+    path("cart/place_order/", place_order, name="place_order"),
+
+    #กบเพิ่มตรงนี้
+    path("payment/<int:order_id>/", payment_view, name="payment"),
+
+    path("orders/", order_list, name="order_list"),  # ✅ ต้องมี path นี้
+    path("orders/<int:order_id>/", order_detail, name="order_detail"),  # ✅ ต้องมีเส้นทางนี้
+
+
+
+
+
+
 
 ]

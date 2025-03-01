@@ -9,6 +9,7 @@ from django.http import HttpResponseForbidden
 from django.shortcuts import render
 from django.http import JsonResponse
 from django.utils import timezone  # ✅ เพิ่มบรรทัดนี้
+from django.urls import reverse
 
 
 def index_view(request):
@@ -33,7 +34,7 @@ def register_view(request):
             user.set_password(form.cleaned_data["password1"])  # ✅ เข้ารหัสรหัสผ่าน
             user.save()  # ✅ บันทึกข้อมูลลงฐานข้อมูล
             login(request, user)  # ✅ ล็อกอินอัตโนมัติหลังสมัคร
-            return redirect("product_list")  # ✅ ไปยังหน้า Dashboard
+            return redirect("home")  # ✅ ไปยังหน้า Dashboard
         else:
             messages.error(request, "❌ กรุณาตรวจสอบข้อมูลที่กรอก!")
     else:
@@ -247,10 +248,12 @@ def create_order(request):
     cart_items.delete()  # ล้างตะกร้าหลังสั่งซื้อ
     return redirect("order_list")
 
+
 @login_required(login_url='login')
 def order_list(request):
     orders = Order.objects.filter(customer=request.user)
     return render(request, "orders/order_list.html", {"orders": orders})
+
 
 @login_required(login_url='login')
 def cancel_order(request, order_id):
@@ -285,3 +288,74 @@ def sales_report(request):
     orders = Order.objects.filter(orderitem__product__seller=request.user).distinct()
     total_sales = sum(order.total_amount for order in orders)
     return render(request, "reports/sales_report.html", {"total_sales": total_sales, "orders": orders})
+
+@login_required
+def confirm_order(request):
+    cart_items = Cart.objects.filter(customer=request.user)
+    if not cart_items.exists():
+        messages.error(request, "❌ ตะกร้าของคุณว่างเปล่า!")
+        return redirect("cart_view")
+
+    total_price = sum(item.product.price * item.quantity for item in cart_items)
+
+    return render(request, "orders/confirm_order.html", {  # ✅ แก้ให้ถูกต้อง
+        "cart_items": cart_items,
+        "total_price": total_price
+    })
+
+
+
+@login_required
+def place_order(request):
+    cart_items = Cart.objects.filter(customer=request.user)
+    if not cart_items.exists():
+        messages.error(request, "❌ ไม่สามารถสร้างคำสั่งซื้อได้เพราะตะกร้าว่างเปล่า!")
+        return redirect("cart_view")
+
+    total_amount = sum(item.product.price * item.quantity for item in cart_items)
+    order = Order.objects.create(customer=request.user, total_amount=total_amount)
+
+    for item in cart_items:
+        OrderItem.objects.create(order=order, product=item.product, quantity=item.quantity, price=item.product.price)
+
+    cart_items.delete()  # ✅ ล้างตะกร้าหลังสั่งซื้อสำเร็จ
+
+    messages.success(request, "✅ คำสั่งซื้อถูกสร้างเรียบร้อยแล้ว!")
+    
+    return redirect(reverse("order_list"))
+
+@login_required
+def payment_view(request, order_id):
+    order = get_object_or_404(Order, id=order_id, customer=request.user)
+
+    if request.method == "POST":
+        payment_method = request.POST["payment_method"]
+        transaction_id = request.POST.get("transaction_id", "")
+
+        # ✅ บันทึกข้อมูลการชำระเงิน
+        Payment.objects.create(
+            order=order,
+            payment_method=payment_method,
+            transaction_id=transaction_id,
+            paid=True
+        )
+
+        order.status = "shipped"  # ✅ อัปเดตสถานะออเดอร์
+        order.save()
+
+        messages.success(request, "✅ การชำระเงินสำเร็จ!")
+        return redirect("order_list")  # ✅ ไปยังหน้ารายการคำสั่งซื้อ
+
+    return render(request, "payments/payment.html", {"order": order})
+
+@login_required
+def order_detail(request, order_id):
+    order = get_object_or_404(Order, id=order_id, customer=request.user)
+    order_items = order.order_items.all()  # ✅ เรียกจาก related_name ที่ถูกต้อง
+
+    
+    return render(request, "orders/order_detail.html", {
+        "order": order,
+        "order_items": order_items
+    })
+

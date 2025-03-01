@@ -1,0 +1,14 @@
+/* static/styles/baseuser.css */
+
+.navbar {
+    font-size: 18px;
+    padding: 15px;
+}
+
+.navbar-brand {
+    font-weight: bold;
+}
+
+.container {
+    max-width: 900px;
+}

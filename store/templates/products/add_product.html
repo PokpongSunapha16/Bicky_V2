@@ -6,31 +6,50 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>เพิ่มสินค้า</title>
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css">
+    <link rel="stylesheet" href="{% static 'styles/add_product.css' %}"> <!-- ✅ เชื่อม CSS -->
 </head>
 <body>
 
     <div class="container mt-5">
-        <h2>เพิ่มสินค้า</h2>
-        <form method="POST" enctype="multipart/form-data">
-            {% csrf_token %}
-            <label>ชื่อสินค้า:</label>
-            <input type="text" name="name" required>
-        
-            <label>รายละเอียดสินค้า:</label>
-            <textarea name="description"></textarea>
-        
-            <label>ราคา:</label>
-            <input type="number" name="price" required>
-        
-            <label>จำนวนสินค้าในสต็อก:</label>  <!-- ✅ ต้องมี field นี้ -->
-            <input type="number" name="stock" required>  
-        
-            <label>รูปสินค้า:</label>
-            <input type="file" name="image">
-        
-            <button type="submit">เพิ่มสินค้า</button>
-        </form>
-        
+        <h2 class="text-center">➕ เพิ่มสินค้าใหม่</h2>
+
+        <div class="card shadow p-4 mt-3">
+            <form method="POST" enctype="multipart/form-data">
+                {% csrf_token %}
+
+                <div class="mb-3">
+                    <label class="form-label">📌 ชื่อสินค้า:</label>
+                    <input type="text" name="name" class="form-control" required>
+                </div>
+
+                <div class="mb-3">
+                    <label class="form-label">📝 รายละเอียดสินค้า:</label>
+                    <textarea name="description" class="form-control" rows="3"></textarea>
+                </div>
+
+                <div class="row">
+                    <div class="col-md-6 mb-3">
+                        <label class="form-label">💰 ราคา:</label>
+                        <input type="number" name="price" class="form-control" required>
+                    </div>
+
+                    <div class="col-md-6 mb-3">
+                        <label class="form-label">📦 จำนวนสินค้าในสต็อก:</label>
+                        <input type="number" name="stock" class="form-control" required>
+                    </div>
+                </div>
+
+                <div class="mb-3">
+                    <label class="form-label">🖼️ รูปสินค้า:</label>
+                    <input type="file" name="image" class="form-control">
+                </div>
+
+                <div class="d-flex justify-content-between">
+                    <a href="{% url 'product_list' %}" class="btn btn-secondary">⬅️ กลับ</a>
+                    <button type="submit" class="btn btn-success">✔️ เพิ่มสินค้า</button>
+                </div>
+            </form>
+        </div>
     </div>
 
 </body>
