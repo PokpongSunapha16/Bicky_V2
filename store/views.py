@@ -20,7 +20,8 @@ def index_view(request):
 
 @login_required(login_url='login')
 def home_view(request):
-    return render(request, "login/home.html")  # ✅ ชี้ไปที่ templates/login/home.html
+    products = Product.objects.all()  # ✅ ดึงสินค้าทั้งหมดจากฐานข้อมูล
+    return render(request, "login/home.html" , {"products": products})  # ✅ ชี้ไปที่ templates/login/home.html
 
 
 
