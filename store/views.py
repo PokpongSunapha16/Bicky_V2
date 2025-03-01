@@ -23,9 +23,6 @@ def home_view(request):
     products = Product.objects.all()  # ✅ ดึงสินค้าทั้งหมดจากฐานข้อมูล
     return render(request, "login/home.html" , {"products": products})  # ✅ ชี้ไปที่ templates/login/home.html
 
-
-
-
 @login_required(login_url='login')
 def dashboard_view(request):
     return render(request, "dashboard.html")
@@ -253,3 +250,89 @@ def sales_report(request):
     orders = Order.objects.filter(orderitem__product__seller=request.user).distinct()
     total_sales = sum(order.total_amount for order in orders)
     return render(request, "reports/sales_report.html", {"total_sales": total_sales, "orders": orders})
+
+
+from django.contrib.auth.decorators import user_passes_test
+from django.contrib.auth import authenticate, login
+from django.contrib import messages
+from.forms import AdminRegisterForm
+from django.contrib.auth import login, logout, authenticate
+from django.contrib import messages
+from django.shortcuts import render, redirect
+from .models import *
+from django.shortcuts import render, redirect
+from django.contrib.auth import authenticate, login, logout
+from django.contrib import messages
+from .forms import AdminRegisterForm
+from .models import CustomUser
+
+# ตรวจสอบว่าเป็นแอดมินหรือไม่
+def is_admin(user):
+    return user.is_authenticated and user.is_staff
+
+# ✅ ฟังก์ชันสมัคร Admin
+def admin_register_view(request):
+    if request.method == "POST":
+        form = AdminRegisterForm(request.POST)
+        if form.is_valid():
+            user = form.save()
+            login(request, user)
+            return redirect("admin_dashboard")
+        else:
+            messages.error(request, "❌ กรุณาตรวจสอบข้อมูลที่กรอก!")
+    else:
+        form = AdminRegisterForm()
+
+    return render(request, "admin/register.html", {"form": form})
+
+# ✅ ฟังก์ชันเข้าสู่ระบบ Admin
+def admin_login_view(request):
+    if request.method == "POST":
+        username = request.POST["username"]
+        password = request.POST["password"]
+
+        user = authenticate(request, username=username, password=password)
+
+        if user and user.is_admin():  # ✅ ตรวจสอบว่าเป็น Admin
+            login(request, user)
+            return redirect("admin_dashboard")
+        else:
+            messages.error(request, "❌ ไม่สามารถเข้าสู่ระบบได้")
+
+    return render(request, "admin/login.html")
+
+# ✅ ออกจากระบบ
+def admin_logout(request):
+    logout(request)
+    return redirect("admin_login")
+
+from django.contrib.auth.decorators import login_required
+from django.shortcuts import render, redirect, get_object_or_404
+from .models import CustomUser, Product, Order
+# ✅ ฟังก์ชันแสดงรายการสินค้า Admin
+from django.shortcuts import render
+from django.contrib.auth.decorators import login_required
+from .models import Order, Product, CustomUser
+import json
+
+@login_required
+def dashboard_view(request):
+    # ✅ คำนวณสถิติ
+    total_sales = Order.objects.filter(status="delivered").aggregate(total=models.Sum("total_amount"))["total"] or 0
+    total_products = Product.objects.count()
+    total_orders = Order.objects.count()
+    total_customers = CustomUser.objects.filter(role="customer").count()
+
+    # ✅ เตรียมข้อมูลสำหรับกราฟ
+    sales_data = Order.objects.values("created_at").annotate(total=models.Sum("total_amount")).order_by("created_at")
+    labels = [str(order["created_at"].date()) for order in sales_data]
+    data = [order["total"] for order in sales_data]
+
+    return render(request, "products/dashboard.html", {
+        "total_sales": total_sales,
+        "total_products": total_products,
+        "total_orders": total_orders,
+        "total_customers": total_customers,
+        "labels": json.dumps(labels),
+        "data": json.dumps(data),
+    })
