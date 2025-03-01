@@ -41,12 +41,17 @@
                     </td>
                     <td>
                         <a href="{% url 'order_detail' order_id=order.id %}" class="btn btn-info btn-sm">ดูรายละเอียด</a>
-
                     </td>
                 </tr>
                 {% endfor %}
             </tbody>
         </table>
+
+        <!-- ✅ ปุ่มย้อนกลับไปหน้าหลัก -->
+        <div class="text-center mt-4">
+            <a href="{% url 'home' %}" class="btn btn-secondary btn-lg">⬅️ กลับไปหน้าหลัก</a>
+        </div>
+
         {% else %}
             <p class="text-center text-muted">📌 ยังไม่มีคำสั่งซื้อ</p>
         {% endif %}

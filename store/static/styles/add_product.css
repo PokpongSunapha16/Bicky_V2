@@ -15,9 +15,36 @@ body {
 
 h2 {
     color: #007bff;
+/* ตั้งค่าเบื้องต้น */
+body {
+    font-family: 'Arial', sans-serif;
+    background-color: #f4f7fc;
+    margin: 0;
+    padding: 0;
 }
 
+/* ตั้งค่าช่องฟอร์ม */
+.container {
+    width: 100%;
+    max-width: 600px;
+    margin: 50px auto;
+    padding: 20px;
+    background-color: #fff;
+    border-radius: 8px;
+    box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
+}
+
+/* หัวข้อ */
+h2 {
+    text-align: center;
+    color: #333;
+    font-size: 24px;
+    margin-bottom: 30px;
+}
+
+/* ตั้งค่าให้ label ชัดเจน */
 label {
+<<<<<<< HEAD
     font-weight: bold;
 }
 
@@ -30,5 +57,60 @@ label {
 }
 
 .btn-success:hover {
+=======
+    display: block;
+    margin-bottom: 8px;
+    font-weight: 600;
+    color: #555;
+}
+
+/* ช่องกรอกข้อมูล */
+input, textarea {
+    width: 100%;
+    padding: 12px;
+    margin-bottom: 18px;
+    border: 1px solid #ccc;
+    border-radius: 5px;
+    box-sizing: border-box;
+    font-size: 16px;
+}
+
+/* ปรับให้ textarea มีขนาดสูงขึ้น */
+textarea {
+    height: 150px;
+    resize: vertical;
+}
+
+/* ปรับให้ปุ่มดูสวยงาม */
+button {
+    width: 100%;
+    padding: 12px;
+    background-color: #28a745;
+    color: #fff;
+    border: none;
+    border-radius: 5px;
+    font-size: 16px;
+    cursor: pointer;
+    transition: background-color 0.3s;
+}
+
+/* เปลี่ยนสีปุ่มเมื่อ Hover */
+button:hover {
+>>>>>>> 1dfffcac2a56f942f9181931d108eaa189c517af
     background-color: #218838;
+}
+
+/* ให้ช่องกรอกข้อมูลที่เป็นไฟล์ดูดีขึ้น */
+input[type="file"] {
+    padding: 5px;
+    border: 1px solid #ccc;
+    border-radius: 5px;
+}
+
+/* ให้ฟอร์มดูสะอาดตา */
+form {
+    padding: 20px;
+    background-color: #fff;
+    border-radius: 8px;
+    box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
 }
