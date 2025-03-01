@@ -11,26 +11,43 @@
 <body>
     <h1>รายการสินค้า</h1>
     <a href="{% url 'add_product' %}" class="btn">เพิ่มสินค้า</a>
-    <table border="1">
-        <tr>
-            <th>ชื่อสินค้า</th>
-            <th>รายละเอียด</th>
-            <th>ราคา</th>
-            <th>สต็อก</th>
-            <th>การจัดการ</th>
-        </tr>
-        {% for product in products %}
-        <tr>
-            <td>{{ product.name }}</td>
-            <td>{{ product.description }}</td>
-            <td>{{ product.price }}</td>
-            <td>{{ product.stock }}</td>
-            <td>
-                <a href="{% url 'edit_product' product.id %}" class="btn">แก้ไข</a>
-                <a href="{% url 'delete_product' product.id %}" class="btn-delete" onclick="return confirm('คุณแน่ใจหรือไม่?');">ลบ</a>
-            </td>
-        </tr>
-        {% endfor %}
-    </table>
+    <table>
+        <thead>
+            <tr>
+                <th>รูปภาพ</th> <!-- ✅ เพิ่มคอลัมน์รูปภาพ -->
+                <th>ชื่อสินค้า</th>
+                <th>รายละเอียด</th>
+                <th>ราคา</th>
+                <th>สต๊อก</th>
+                <th>การจัดการ</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for product in products %}
+            <tr>
+                <td>
+                    {% if product.image %}
+                        <p>URL: {{ product.image.url }}</p>  <!-- ✅ Debug: แสดง URL ของรูป -->
+                        <img src="{{ product.image.url }}" alt="{{ product.name }}" style="width: 80px; height: auto;">
+
+                    {% else %}
+                        <p>ไม่มีรูป</p>
+                    {% endif %}
+                </td>                                
+                <td>{{ product.name }}</td>
+                <td>{{ product.description }}</td>
+                <td>{{ product.price }}</td>
+                <td>{{ product.stock }}</td>
+                <td>
+                    <a href="{% url 'edit_product' product.id %}" class="btn btn-success">แก้ไข</a>
+                    <form action="{% url 'delete_product' product.id %}" method="post" style="display:inline;">
+                        {% csrf_token %}
+                        <button type="submit" class="btn btn-danger">ลบ</button>
+                    </form>
+                </td>
+            </tr>
+            {% endfor %}
+        </tbody>
+    </table>    
 </body>
 </html>

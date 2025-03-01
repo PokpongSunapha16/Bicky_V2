@@ -1,0 +1,27 @@
+<!DOCTYPE html>
+<html lang="th">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>รายละเอียดสินค้า</title>
+    <link rel="stylesheet" href="/static/css/style.css">
+</head>
+<body>
+    <h2>{{ product.name }}</h2>
+    
+    <!-- ✅ แสดงรูปสินค้า -->
+    {% if product.image %}
+        <img src="{{ product.image.url }}" alt="{{ product.name }}" style="max-width: 300px; height: auto;">
+    {% else %}
+        <p>ไม่มีรูปภาพสินค้า</p>
+    {% endif %}
+
+    <p>{{ product.description }}</p>
+    <p><strong>ราคา:</strong> {{ product.price }} บาท</p>
+    <p><strong>สต๊อก:</strong> {{ product.stock }}</p>
+    
+    <a href="{% url 'edit_product' product.id %}">แก้ไข</a> | 
+    <a href="{% url 'delete_product' product.id %}">ลบ</a> |
+    <a href="{% url 'product_list' %}">ย้อนกลับ</a>
+</body>
+</html>

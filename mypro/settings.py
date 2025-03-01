@@ -1,7 +1,8 @@
 from pathlib import Path
+import os
 
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
-BASE_DIR = Path(__file__).resolve().parent.parent
+BASE_DIR = Path(__file__).resolve().parent.parent  # ✅ ใช้ Path ไม่ซ้ำซ้อน
 
 # Quick-start development settings - unsuitable for production
 SECRET_KEY = 'django-insecure-szfb45_hy(an)p9-i&*7dlwhx^s61#_c5ktlth&er_-)9lbiox'
@@ -32,7 +33,7 @@ ROOT_URLCONF = 'mypro.urls'
 TEMPLATES = [
     {
         'BACKEND': 'django.template.backends.django.DjangoTemplates',
-        'DIRS': [],
+        'DIRS': [BASE_DIR / "templates"],  # ✅ เพิ่ม templates directory
         'APP_DIRS': True,
         'OPTIONS': {
             'context_processors': [
@@ -68,12 +69,20 @@ TIME_ZONE = 'UTC'
 USE_I18N = True
 USE_TZ = True
 
-# Static files (CSS, JavaScript, Images)
-STATIC_URL = '/static/'  # เปลี่ยนเป็นเส้นทางที่ใช้งานได้ใน URL
+# ✅ Static Files Configuration
+STATIC_URL = '/static/'
 STATICFILES_DIRS = [
-    BASE_DIR / "static",  # ตรวจสอบให้แน่ใจว่าโฟลเดอร์นี้มีอยู่
+    BASE_DIR / "store/static",  # ✅ กำหนด static ไว้ที่ root folder
 ]
-STATIC_ROOT = BASE_DIR / "staticfiles"  # ใช้สำหรับการรวบรวมไฟล์ static ใน production
+STATIC_ROOT = BASE_DIR / "staticfiles"  # ✅ ใช้สำหรับ collectstatic ใน production
+
+# ✅ Media Files Configuration
+MEDIA_URL = '/media/'
+MEDIA_ROOT = BASE_DIR / "media"
 
 DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
+
+LOGIN_URL = "/login/"
+LOGOUT_REDIRECT_URL = "/login/"
+LOGIN_REDIRECT_URL = "/"  # ✅ หลังจากล็อกอินให้ redirect ไปหน้าแรก
 

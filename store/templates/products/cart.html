@@ -1,0 +1,38 @@
+<!DOCTYPE html>
+<html lang="th">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>ตะกร้าสินค้า</title>
+</head>
+<body>
+    <h2>ตะกร้าสินค้า</h2>
+    {% if cart_items %}
+        <table border="1">
+            <tr>
+                <th>สินค้า</th>
+                <th>จำนวน</th>
+                <th>ราคา</th>
+                <th>ลบ</th>
+            </tr>
+            {% for item in cart_items %}
+            <tr>
+                <td>{{ item.product.name }}</td>
+                <td>
+                    <form method="post" action="{% url 'update_cart_quantity' item.id %}">
+                        {% csrf_token %}
+                        <input type="number" name="quantity" value="{{ item.quantity }}" min="1">
+                        <button type="submit">อัปเดต</button>
+                    </form>
+                </td>
+                <td>{{ item.product.price }} บาท</td>
+                <td><a href="{% url 'remove_from_cart' item.id %}">ลบ</a></td>
+            </tr>
+            {% endfor %}
+        </table>
+        <a href="{% url 'create_order' %}">ดำเนินการสั่งซื้อ</a>
+    {% else %}
+        <p>ตะกร้าของคุณว่างเปล่า</p>
+    {% endif %}
+</body>
+</html>

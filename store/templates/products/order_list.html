@@ -1,0 +1,37 @@
+<!DOCTYPE html>
+<html lang="th">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>รายการคำสั่งซื้อ</title>
+</head>
+<body>
+    <h2>รายการคำสั่งซื้อ</h2>
+    {% if orders %}
+        <table border="1">
+            <tr>
+                <th>รหัสคำสั่งซื้อ</th>
+                <th>ยอดรวม</th>
+                <th>สถานะ</th>
+                <th>ยกเลิก</th>
+            </tr>
+            {% for order in orders %}
+            <tr>
+                <td>{{ order.id }}</td>
+                <td>{{ order.total_amount }} บาท</td>
+                <td>{{ order.status }}</td>
+                <td>
+                    {% if order.status == 'pending' %}
+                        <a href="{% url 'cancel_order' order.id %}">ยกเลิก</a>
+                    {% else %}
+                        -
+                    {% endif %}
+                </td>
+            </tr>
+            {% endfor %}
+        </table>
+    {% else %}
+        <p>ไม่มีคำสั่งซื้อ</p>
+    {% endif %}
+</body>
+</html>
