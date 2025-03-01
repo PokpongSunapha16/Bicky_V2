@@ -52,6 +52,7 @@ class Cart(models.Model):
     customer = models.ForeignKey(CustomUser, on_delete=models.CASCADE, related_name="cart")
     product = models.ForeignKey(Product, on_delete=models.CASCADE)
     quantity = models.IntegerField(default=1)
+    updated_at = models.DateTimeField(auto_now=True)  # ✅ เพิ่ม auto_now=True
 
 
 # ✅ Order Model

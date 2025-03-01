@@ -1,8 +1,6 @@
 from django.urls import path
 from .views import *
 
-from django.urls import path
-from .views import index_view, home_view, logout_view
 
 urlpatterns = [
     path("", index_view, name="index"),  # ✅ หน้าแรกคือ index.html
@@ -23,4 +21,12 @@ urlpatterns = [
 
     path("pos/", pos_view, name="pos"),  # ✅ เพิ่มเส้นทาง POS
     path("settings/", settings_view, name="settings"),
+
+
+    path('cart/', cart_view, name='cart_view'),  # ✅ ต้องมี path นี้
+    path('cart/add/<int:product_id>/', add_to_cart, name='add_to_cart'),
+    path('cart/remove/<int:cart_id>/', remove_from_cart, name='remove_from_cart'),
+    path('cart/update/<int:cart_id>/', update_cart_quantity, name='update_cart_quantity'),
+    path("cart/checkout/", checkout, name="checkout"),
+
 ]

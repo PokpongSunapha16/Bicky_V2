@@ -1,19 +1,15 @@
 from django.shortcuts import render,redirect
-from django.http import HttpResponse
-import pandas as pd
-import matplotlib.pyplot as plt
-import io
-import base64
-import seaborn as sns  # Import seaborn สำหรับสร้าง Histogram
 from django.contrib.auth import authenticate, login, logout
 from django.contrib import messages
 from .forms import RegisterForm
 from django.contrib.auth.decorators import login_required
 from django.shortcuts import render, redirect, get_object_or_404
-from .models import Product
+from .models import Product, Cart
 from django.http import HttpResponseForbidden
 from django.shortcuts import render
-from .models import Product
+from django.http import JsonResponse
+from django.utils import timezone  # ✅ เพิ่มบรรทัดนี้
+
 
 def index_view(request):
     return render(request, "index.html")  # ✅ ตั้งให้ / แสดง index.html
@@ -22,8 +18,6 @@ def index_view(request):
 def home_view(request):
     products = Product.objects.all()  # ✅ ดึงสินค้าทั้งหมดจากฐานข้อมูล
     return render(request, "login/home.html" , {"products": products})  # ✅ ชี้ไปที่ templates/login/home.html
-
-
 
 
 @login_required(login_url='login')
@@ -158,6 +152,7 @@ def update_product_info(request):
 
     return JsonResponse({"success": False}, status=400)
 
+# ✅ หน้าการตั้งค่า
 def settings_view(request):
     return render(request, "products/settings.html")
 
@@ -168,35 +163,72 @@ from django.http import HttpResponseForbidden
 from django.contrib import messages
 from .models import Product, Cart, Order, OrderItem, Payment
 
+
 # ✅ ระบบตะกร้าสินค้า (Shopping Cart)
 @login_required(login_url='login')
 def cart_view(request):
     cart_items = Cart.objects.filter(customer=request.user)
-    return render(request, "cart/cart.html", {"cart_items": cart_items})
+    
+    # ✅ คำนวณราคาทั้งหมดของแต่ละสินค้าในตะกร้า และเพิ่มเป็น attribute "total_price"
+    for item in cart_items:
+        item.total_price = item.product.price * item.quantity  # ✅ เพิ่ม total_price
+    
+    total_price = sum(item.total_price for item in cart_items)  # ✅ คำนวณราคารวมทั้งหมด
+    
+    return render(request, "cart/cart.html", {"cart_items": cart_items, "total_price": total_price})
+
+
 
 @login_required(login_url='login')
 def add_to_cart(request, product_id):
     product = get_object_or_404(Product, id=product_id)
-    cart_item, created = Cart.objects.get_or_create(customer=request.user, product=product)
+    
+    cart_item, created = Cart.objects.get_or_create(
+        customer=request.user, product=product,
+        defaults={"updated_at": timezone.now()}  # ✅ ใช้ timezone.now() เพื่อกำหนดค่า updated_at
+    )
+    
     if not created:
         cart_item.quantity += 1
+        cart_item.updated_at = timezone.now()  # ✅ อัปเดตค่า updated_at ทุกครั้งที่เพิ่มสินค้า
         cart_item.save()
+
     return redirect("cart_view")
 
+
+# ✅ ลบสินค้าออกจากตะกร้า
 @login_required(login_url='login')
 def remove_from_cart(request, cart_id):
     cart_item = get_object_or_404(Cart, id=cart_id, customer=request.user)
     cart_item.delete()
+    messages.success(request, "❌ ลบสินค้าออกจากตะกร้าแล้ว!")
     return redirect("cart_view")
 
+# ✅ อัปเดตจำนวนสินค้าในตะกร้า
 @login_required(login_url='login')
 def update_cart_quantity(request, cart_id):
     cart_item = get_object_or_404(Cart, id=cart_id, customer=request.user)
+
     if request.method == "POST":
         new_quantity = int(request.POST["quantity"])
-        cart_item.quantity = new_quantity
-        cart_item.save()
+        if new_quantity > 0:
+            cart_item.quantity = new_quantity
+            cart_item.save()
+        else:
+            cart_item.delete()
+
+    messages.success(request, "✏️ อัปเดตจำนวนสินค้าสำเร็จ!")
     return redirect("cart_view")
+
+
+# ✅ ปรับ `checkout` ให้แสดง Alert 
+@login_required(login_url='login')
+def checkout(request):
+    messages.success(request, "✅ สั่งซื้อสำเร็จแล้ว!")
+    return redirect("cart_view")  # ✅ กลับไปที่หน้าตะกร้า
+
+
+
 
 # ✅ ระบบคำสั่งซื้อ (Order Management)
 @login_required(login_url='login')
