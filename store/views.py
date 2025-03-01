@@ -10,6 +10,8 @@ from django.shortcuts import render
 from django.http import JsonResponse
 from django.utils import timezone  # ✅ เพิ่มบรรทัดนี้
 from django.urls import reverse
+import json
+from decimal import Decimal
 
 
 def index_view(request):
@@ -415,6 +417,12 @@ from django.contrib.auth.decorators import login_required
 from .models import Order, Product, CustomUser
 import json
 
+# ✅ ฟังก์ชันช่วยแปลง Decimal เป็น float
+def decimal_to_float(obj):
+    if isinstance(obj, Decimal):
+        return float(obj)  # ✅ แปลง Decimal เป็น float
+    raise TypeError
+
 @login_required
 def dashboard_view(request):
     # ✅ คำนวณสถิติ
@@ -434,5 +442,5 @@ def dashboard_view(request):
         "total_orders": total_orders,
         "total_customers": total_customers,
         "labels": json.dumps(labels),
-        "data": json.dumps(data),
+        "data": json.dumps(data, default=decimal_to_float),
     })
