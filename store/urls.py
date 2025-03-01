@@ -1,8 +1,11 @@
 from django.urls import path
 from .views import *
 
+<<<<<<< HEAD
 from django.urls import path
 from .views import *
+=======
+>>>>>>> a9bf9ffedc1e39156e05e9d03d4c2c9e7b713815
 
 urlpatterns = [
     path("", index_view, name="index"),  # ✅ หน้าแรกคือ index.html
@@ -21,6 +24,7 @@ urlpatterns = [
     path("pos/", pos_view, name="pos"),  # ✅ เพิ่มเส้นทาง POS
     path("settings/", settings_view, name="settings"),
 
+<<<<<<< HEAD
     # ✅ ระบบจัดการผู้ใช้
     path("admin/register/", admin_register_view, name="admin_register"),
     path("admin/login/", admin_login_view, name="admin_login"),
@@ -29,4 +33,13 @@ urlpatterns = [
 
 
     path("dashboard/", dashboard_view, name="dashboard"),  # ✅ เปลี่ยนเป็น dashboard/
+=======
+
+    path('cart/', cart_view, name='cart_view'),  # ✅ ต้องมี path นี้
+    path('cart/add/<int:product_id>/', add_to_cart, name='add_to_cart'),
+    path('cart/remove/<int:cart_id>/', remove_from_cart, name='remove_from_cart'),
+    path('cart/update/<int:cart_id>/', update_cart_quantity, name='update_cart_quantity'),
+    path("cart/checkout/", checkout, name="checkout"),
+
+>>>>>>> a9bf9ffedc1e39156e05e9d03d4c2c9e7b713815
 ]

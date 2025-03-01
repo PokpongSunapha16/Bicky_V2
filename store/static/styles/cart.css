@@ -1,0 +1,113 @@
+/* ✅ ตั้งค่าพื้นฐานของตาราง */
+table {
+    width: 100%;
+    border-collapse: collapse;
+    margin-top: 20px;
+}
+
+th, td {
+    padding: 12px;
+    text-align: center;
+    border-bottom: 1px solid #ddd;
+}
+
+th {
+    background-color: #28a745;
+    color: white;
+}
+
+/* ✅ ปรับปุ่มต่างๆ */
+button {
+    border: none;
+    cursor: pointer;
+}
+
+/* ✅ ปุ่มอัปเดต */
+button[type="submit"] {
+    background-color: #007bff;
+    color: white;
+    padding: 5px 10px;
+    border-radius: 5px;
+}
+
+button[type="submit"]:hover {
+    background-color: #0056b3;
+}
+
+/* ✅ ปุ่มลบ */
+.btn-danger {
+    background-color: #dc3545;
+    color: white;
+    padding: 5px 10px;
+    border-radius: 5px;
+    text-decoration: none;
+}
+
+.btn-danger:hover {
+    background-color: #a71d2a;
+}
+
+/* ✅ ปุ่มยืนยันคำสั่งซื้อ */
+.btn-success {
+    background-color: #28a745;
+    color: white;
+    padding: 10px 15px;
+    border-radius: 5px;
+    font-weight: bold;
+    text-decoration: none;
+}
+
+.btn-success:hover {
+    background-color: #1e7e34;
+}
+
+/* ✅ ปุ่มย้อนกลับ */
+.btn-secondary {
+    background-color: #6c757d;
+    color: white;
+    padding: 10px 15px;
+    border-radius: 5px;
+    text-decoration: none;
+}
+
+.btn-secondary:hover {
+    background-color: #5a6268;
+}
+
+/* ✅ กล่องจำนวนสินค้า */
+input[type="number"] {
+    width: 60px;
+    padding: 5px;
+    text-align: center;
+    border: 1px solid #ddd;
+    border-radius: 5px;
+}
+
+/* ✅ ทำให้ปุ่ม "ย้อนกลับ" และ "ยืนยันคำสั่งซื้อ" จัดชิดขอบ */
+.button-group {
+    display: flex;
+    justify-content: space-between;
+    margin-top: 20px;
+}
+
+/* ✅ ทำให้หน้าตะกร้าดูสะอาดตา */
+.container {
+    max-width: 800px;
+    margin: auto;
+    padding: 20px;
+}
+
+h2 {
+    color: #28a745;
+    text-align: center;
+}
+
+h4 {
+    text-align: right;
+    color: #333;
+}
+
+p.text-muted {
+    text-align: center;
+    font-size: 16px;
+}
