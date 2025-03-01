@@ -15,14 +15,17 @@ from django.http import HttpResponseForbidden
 from django.shortcuts import render
 from .models import Product
 
-@login_required
+def index_view(request):
+    return render(request, "index.html")  # ✅ ตั้งให้ / แสดง index.html
+
+@login_required(login_url='login')
 def home_view(request):
-    products = Product.objects.all()
-    categories = ["Electronics", "Clothing", "Accessories", "Home & Living"]
-    return render(request, "index.html", {"products": products, "categories": categories})
+    return render(request, "login/home.html")  # ✅ ชี้ไปที่ templates/login/home.html
 
 
-@login_required
+
+
+@login_required(login_url='login')
 def dashboard_view(request):
     return render(request, "dashboard.html")
 
@@ -43,31 +46,31 @@ def register_view(request):
     
     return render(request, "login/register.html", {"form": form})
 
+
 def login_view(request):
     if request.method == "POST":
-        print(request.POST)  # ✅ Debug ดูว่ามีค่าอะไรถูกส่งมา
         username = request.POST.get("username", "").strip()
         password = request.POST.get("password", "").strip()
         user = authenticate(request, username=username, password=password)
 
         if user:
             login(request, user)
-            return redirect("index")  # ✅ ตรวจสอบว่า "index" มีอยู่ใน urls.py
+            return redirect("home")  # ✅ เปลี่ยนให้ไปหน้า home หลัง login
         else:
             messages.error(request, "❌ Username หรือ Password ไม่ถูกต้อง!")
 
     return render(request, "login/login.html")
 
-
-
+@login_required(login_url='login')
 def logout_view(request):
-    logout(request)
-    return redirect("login")
+    logout(request)  # ✅ ลบ session ผู้ใช้ปัจจุบัน
+    messages.success(request, "คุณได้ออกจากระบบเรียบร้อยแล้ว")
+    return redirect('index')  # ✅ กลับไปหน้า index หลังจากออกจากระบบ
 
 
 
 # ✅ แสดงรายการสินค้า
-@login_required
+@login_required(login_url='login')
 def product_list(request):
     products = Product.objects.all()
 
@@ -77,13 +80,13 @@ def product_list(request):
 
     return render(request, "products/product_list.html", {"products": products})
 
-@login_required
+@login_required(login_url='login')
 def pos_view(request):
     products = Product.objects.all()  # ✅ ดึงสินค้าทั้งหมดจากฐานข้อมูล
     return render(request, "pos.html", {"products": products})
 
 # ✅ เพิ่มสินค้าใหม่
-@login_required
+@login_required(login_url='login')
 def add_product(request):
     if request.method == "POST":
         print(request.POST)  # ✅ Debug ดูว่ามีค่าอะไรถูกส่งมา
@@ -108,7 +111,7 @@ def add_product(request):
 
 
 # ✅ แก้ไขสินค้า
-@login_required
+@login_required(login_url='login')
 def edit_product(request, product_id):
     product = get_object_or_404(Product, id=product_id)
 
@@ -123,7 +126,7 @@ def edit_product(request, product_id):
     return render(request, "products/edit_product.html", {"product": product})
 
 # ✅ ลบสินค้า
-@login_required
+@login_required(login_url='login')
 def delete_product(request, product_id):
     product = get_object_or_404(Product, id=product_id)  # ✅ ถ้าไม่มีสินค้าจะขึ้น 404 ทันที
 
@@ -135,7 +138,7 @@ def delete_product(request, product_id):
 
 # ✅ อัปเดตราคาและสต๊อกสินค้าแบบ AJAX
 from django.http import JsonResponse
-@login_required
+@login_required(login_url='login')
 def update_product_info(request):
     if request.method == "POST":
         product_id = request.POST["product_id"]
@@ -165,12 +168,12 @@ from django.contrib import messages
 from .models import Product, Cart, Order, OrderItem, Payment
 
 # ✅ ระบบตะกร้าสินค้า (Shopping Cart)
-@login_required
+@login_required(login_url='login')
 def cart_view(request):
     cart_items = Cart.objects.filter(customer=request.user)
     return render(request, "cart/cart.html", {"cart_items": cart_items})
 
-@login_required
+@login_required(login_url='login')
 def add_to_cart(request, product_id):
     product = get_object_or_404(Product, id=product_id)
     cart_item, created = Cart.objects.get_or_create(customer=request.user, product=product)
@@ -179,13 +182,13 @@ def add_to_cart(request, product_id):
         cart_item.save()
     return redirect("cart_view")
 
-@login_required
+@login_required(login_url='login')
 def remove_from_cart(request, cart_id):
     cart_item = get_object_or_404(Cart, id=cart_id, customer=request.user)
     cart_item.delete()
     return redirect("cart_view")
 
-@login_required
+@login_required(login_url='login')
 def update_cart_quantity(request, cart_id):
     cart_item = get_object_or_404(Cart, id=cart_id, customer=request.user)
     if request.method == "POST":
@@ -195,7 +198,7 @@ def update_cart_quantity(request, cart_id):
     return redirect("cart_view")
 
 # ✅ ระบบคำสั่งซื้อ (Order Management)
-@login_required
+@login_required(login_url='login')
 def create_order(request):
     cart_items = Cart.objects.filter(customer=request.user)
     if not cart_items.exists():
@@ -211,12 +214,12 @@ def create_order(request):
     cart_items.delete()  # ล้างตะกร้าหลังสั่งซื้อ
     return redirect("order_list")
 
-@login_required
+@login_required(login_url='login')
 def order_list(request):
     orders = Order.objects.filter(customer=request.user)
     return render(request, "orders/order_list.html", {"orders": orders})
 
-@login_required
+@login_required(login_url='login')
 def cancel_order(request, order_id):
     order = get_object_or_404(Order, id=order_id, customer=request.user)
     if order.status == 'pending':
@@ -227,7 +230,7 @@ def cancel_order(request, order_id):
     return redirect("order_list")
 
 # ✅ ระบบชำระเงิน (Payment System)
-@login_required
+@login_required(login_url='login')
 def process_payment(request, order_id):
     order = get_object_or_404(Order, id=order_id, customer=request.user)
     if request.method == "POST":
@@ -241,7 +244,7 @@ def process_payment(request, order_id):
     return render(request, "payments/payment_form.html", {"order": order})
 
 # ✅ ระบบสถิติยอดขาย (Sales Dashboard)
-@login_required
+@login_required(login_url='login')
 def sales_report(request):
     if not request.user.is_seller():
         return HttpResponseForbidden("คุณไม่มีสิทธิ์เข้าถึงหน้านี้!")

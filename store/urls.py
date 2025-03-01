@@ -1,13 +1,18 @@
 from django.urls import path
-#from .views import ProductViewSet
 from .views import *
 
+from django.urls import path
+from .views import index_view, home_view, logout_view
+
 urlpatterns = [
-    path("", home_view, name="index"),  # ✅ หน้าแรกต้องมีเส้นทางนี้
+    path("", index_view, name="index"),  # ✅ หน้าแรกคือ index.html
+    path("home/", home_view, name="home"),  # ✅ หน้า home หลัง login
+    path("logout/", logout_view, name="logout"),  # ✅ Logout แล้วกลับไป indeX
+
     path("dashboard/", dashboard_view, name="dashboard"),
     path("register/", register_view, name="register"),
     path("login/", login_view, name="login"),
-    path("logout/", logout_view, name="logout"),
+
 
    # ✅ ระบบจัดการสินค้า
     path("products/", product_list, name="product_list"),
