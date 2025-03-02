@@ -448,3 +448,30 @@ def dashboard_view(request):
         "labels": json.dumps(labels),
         "data": json.dumps(data, default=decimal_to_float),
     })
+
+from django.shortcuts import render, redirect
+from django.http import HttpResponse
+from .models import StorePayment
+from django.utils.timezone import now
+
+from django.shortcuts import render
+from django.utils.timezone import now
+from store.models import StorePayment
+
+def upload_slip(request):
+    if request.method == 'POST' and request.FILES.get('slip'):
+        slip = request.FILES['slip']
+
+        # สร้างรายการบันทึกการชำระเงินใหม่โดยไม่ต้องใช้ order
+        payment = StorePayment.objects.create(
+            payment_method="bank_transfer",
+            transaction_id=None,
+            paid=False,
+            paid_at=now(),
+            receipt=slip  # เก็บไฟล์สลิป
+        )
+
+        return render(request, 'upload_slip_success.html', {'slip_url': payment.receipt.url})
+
+    return render(request, 'upload_slip.html')
+

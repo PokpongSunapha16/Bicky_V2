@@ -90,14 +90,22 @@ class OrderItem(models.Model):
 
 
 # ✅ Payment Model
-class Payment(models.Model):
-    PAYMENT_METHODS = [
-        ('cod', 'Cash on Delivery'),
-        ('paypal', 'PayPal'),
-        ('stripe', 'Stripe'),
-    ]
-    order = models.OneToOneField(Order, on_delete=models.CASCADE, related_name="payment")
-    payment_method = models.CharField(max_length=10, choices=PAYMENT_METHODS)
-    transaction_id = models.CharField(max_length=255, blank=True, null=True)
+#class Payment(models.Model):
+#    PAYMENT_METHODS = [
+#        ('cod', 'Cash on Delivery'),
+#        ('paypal', 'PayPal'),
+#        ('stripe', 'Stripe'),
+#    ]
+#    order = models.OneToOneField(Order, on_delete=models.CASCADE, related_name="payment")
+#    payment_method = models.CharField(max_length=10, choices=PAYMENT_METHODS)
+#    transaction_id = models.CharField(max_length=255, blank=True, null=True)
+#    paid = models.BooleanField(default=False)
+#    paid_at = models.DateTimeField(blank=True, null=True)
+
+class StorePayment(models.Model):
+    order = models.ForeignKey('store.Order', on_delete=models.CASCADE, null=True, blank=True)
+    payment_method = models.CharField(max_length=20)
+    transaction_id = models.CharField(max_length=255, null=True, blank=True)
     paid = models.BooleanField(default=False)
-    paid_at = models.DateTimeField(blank=True, null=True)
+    paid_at = models.DateTimeField(null=True, blank=True)
+    receipt = models.ImageField(upload_to='receipts/', null=True, blank=True)  # เก็บไฟล์สลิป

@@ -1,5 +1,6 @@
 from django.urls import path
 from .views import *
+from . import views
 
 urlpatterns = [
     path("", index_view, name="index"),  # ✅ หน้าแรกคือ index.html
@@ -42,6 +43,7 @@ urlpatterns = [
 
     path("orders/", order_list, name="order_list"),  # ✅ ต้องมี path นี้
     path("orders/<int:order_id>/", order_detail, name="order_detail"),  # ✅ ต้องมีเส้นทางนี้
+    path('upload-slip/', views.upload_slip, name='upload_slip'),
 
 
 

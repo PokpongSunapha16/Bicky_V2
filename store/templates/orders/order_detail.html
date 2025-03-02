@@ -25,6 +25,8 @@
                     <span class="badge bg-success">จัดส่งแล้ว</span>
                 {% endif %}
             </p>
+            <a href="{% url 'upload_slip' %}" class="btn btn-secondary btn-lg mt-3">อัพโหลดสลิปโอนเงิน</a>
+
         </div>
 
         <h4 class="mt-4">📌 รายการสินค้า</h4>
@@ -49,7 +51,7 @@
             </tbody>
         </table>
 
-        <a href="{% url 'order_list' %}" class="btn btn-secondary btn-lg">⬅️ กลับ</a>
+        <a href="{% url 'order_list' %}" class="btn btn-secondary btn-lg mt-3">⬅️ กลับ</a>
     </div>
 
 </body>
