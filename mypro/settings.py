@@ -76,7 +76,8 @@ STATIC_URL = '/static/'
 STATICFILES_DIRS = [
     BASE_DIR / "store/static",  # ✅ กำหนด static ไว้ที่ root folder
 ]
-STATIC_ROOT = BASE_DIR / "staticfiles"  # ✅ ใช้สำหรับ collectstatic ใน production
+
+# STATIC_ROOT = BASE_DIR / "staticfiles"  # ✅ ใช้สำหรับ collectstatic ใน production
 
 # ✅ Media Files Configuration
 MEDIA_URL = "/media/"

@@ -502,3 +502,133 @@ def upload_slip(request):
 
     return render(request, 'upload_slip.html')
 
+
+
+from django.shortcuts import render
+from django.http import HttpResponse
+import matplotlib.pyplot as plt
+import seaborn as sns
+import io
+import base64
+import pandas as pd
+from .models import Product, Order, OrderItem, StorePayment
+from django.db.models import Sum, Count
+from django.utils.timezone import now
+from django.db.models.functions import TruncDate
+
+# ✅ Function to convert Matplotlib figures to Base64 for embedding in HTML
+def create_chart(figure):
+    buffer = io.BytesIO()
+    figure.savefig(buffer, format='png')
+    buffer.seek(0)
+    image_png = buffer.getvalue()
+    buffer.close()
+    plt.close(figure)
+    return base64.b64encode(image_png).decode('utf-8')
+
+# ✅ Function to generate the dashboard
+def dashboard_view(request):
+    try:
+        # ✅ 1. Pie Chart - Product Category Distribution
+        category_counts = Product.objects.values("category").annotate(total=Count("id"))
+        pie_chart = None
+        bar_chart = None
+        price_histogram = None
+        sales_trend_chart = None
+        top_products_chart = None
+        payment_chart = None
+        
+        if category_counts:
+            df_category = pd.DataFrame(category_counts)
+            fig1, ax1 = plt.subplots(figsize=(6, 6))
+            ax1.pie(df_category["total"], labels=df_category["category"], autopct="%1.1f%%", startangle=140)
+            plt.title("📊 Product Category Distribution")
+            pie_chart = create_chart(fig1)
+        else:
+            pie_chart = None
+
+        # ✅ 2. Bar Chart - Number of Products by Category
+        if category_counts:
+            fig2, ax2 = plt.subplots(figsize=(8, 5))
+            ax2.bar(df_category["category"], df_category["total"], color="skyblue")
+            plt.title("📦 Product Count by Category")
+            plt.xticks(rotation=45)
+            bar_chart = create_chart(fig2)
+        else:
+            bar_chart = None
+
+        # ✅ 3. Histogram - Product Price Distribution
+        product_prices = list(Product.objects.values_list("price", flat=True))
+        if product_prices:
+            fig3, ax3 = plt.subplots(figsize=(10, 6))
+            sns.histplot(product_prices, bins=10, kde=True, color="green", ax=ax3)
+            ax3.set_xlabel("Price (THB)")
+            ax3.set_ylabel("Number of Products")
+            ax3.set_title("💰 Product Price Distribution")
+            price_histogram = create_chart(fig3)
+        else:
+            price_histogram = None
+
+        # ✅ 4. Line Chart - Sales Trend Over Time
+        sales_data = (
+            Order.objects.filter(status="delivered")
+            .annotate(sale_date=TruncDate("created_at"))  # ✅ Use TruncDate to extract the date
+            .values("sale_date")
+            .annotate(total_sales=Sum("total_amount"))
+            .order_by("sale_date")
+        )
+
+        if sales_data:
+            df_sales = pd.DataFrame(sales_data)
+            fig4, ax4 = plt.subplots(figsize=(10, 6))
+            ax4.plot(df_sales["sale_date"], df_sales["total_sales"], marker="o", linestyle="-", color="red")
+            ax4.set_xlabel("Date")
+            ax4.set_ylabel("Total Sales (THB)")
+            ax4.set_title("📈 Daily Sales Trend")
+            ax4.grid(True)
+            sales_trend_chart = create_chart(fig4)
+        else:
+            sales_trend_chart = None
+
+        # ✅ 5. Bar Chart - Top 5 Best-Selling Products
+        top_products = (
+            OrderItem.objects.values("product__name")
+            .annotate(total_sold=Sum("quantity"))
+            .order_by("-total_sold")[:5]
+        )
+
+        if top_products:
+            df_top_products = pd.DataFrame(top_products)
+            fig5, ax5 = plt.subplots(figsize=(10, 6))
+            ax5.bar(df_top_products["product__name"], df_top_products["total_sold"], color="orange")
+            ax5.set_xlabel("Product")
+            ax5.set_ylabel("Units Sold")
+            ax5.set_title("🏆 Top 5 Best-Selling Products")
+            plt.xticks(rotation=45)
+            top_products_chart = create_chart(fig5)
+        else:
+            top_products_chart = None
+
+        # ✅ 6. Pie Chart - Payment Method Distribution
+        payment_data = StorePayment.objects.values("payment_method").annotate(total=Count("id"))
+        if payment_data:
+            df_payment = pd.DataFrame(payment_data)
+            fig6, ax6 = plt.subplots(figsize=(6, 6))
+            ax6.pie(df_payment["total"], labels=df_payment["payment_method"], autopct="%1.1f%%", startangle=140)
+            plt.title("💳 Payment Method Distribution")
+            payment_chart = create_chart(fig6)
+        else:
+            payment_chart = None
+
+        # ✅ Send Charts to Template
+        return render(request, "dashboard.html", {
+            "pie_chart": pie_chart,
+            "bar_chart": bar_chart,
+            "price_histogram": price_histogram,
+            "sales_trend_chart": sales_trend_chart,
+            "top_products_chart": top_products_chart,
+            "payment_chart": payment_chart
+        })
+
+    except Exception as e:
+        return HttpResponse(f"An error occurred: {str(e)}")

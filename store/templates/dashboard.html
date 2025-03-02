@@ -1,0 +1,28 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Dashboard</title>
+</head>
+<body>
+    <h1>Dashboard</h1>
+
+    {% if pie_chart %}
+        <h2>Product Category Distribution</h2>
+        <img src="data:image/png;base64,{{ pie_chart }}" alt="Pie Chart">
+    {% else %}
+        <p>No data available for Pie Chart.</p>
+    {% endif %}
+
+    {% if bar_chart %}
+        <h2>Product Count by Category</h2>
+        <img src="data:image/png;base64,{{ bar_chart }}" alt="Bar Chart">
+    {% endif %}
+
+    {% if sales_trend_chart %}
+        <h2>Sales Trend Over Time</h2>
+        <img src="data:image/png;base64,{{ sales_trend_chart }}" alt="Sales Trend Chart">
+    {% endif %}
+</body>
+</html>
