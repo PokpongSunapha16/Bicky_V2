@@ -30,8 +30,7 @@ urlpatterns = [
 
     path("cart/confirm_order/", confirm_order, name="confirm_order"),
     path("cart/place_order/", place_order, name="place_order"),
-
-    #กบเพิ่มตรงนี้
+    
     path("payment/<int:order_id>/", payment_view, name="payment"),
 
     path("orders/", order_list, name="order_list"),  # ✅ ต้องมี path นี้

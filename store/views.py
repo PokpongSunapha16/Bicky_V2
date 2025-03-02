@@ -16,7 +16,11 @@ import os
 from django.conf import settings
 from django.shortcuts import render, get_object_or_404, redirect
 from django.contrib import messages
+import matplotlib
+import matplotlib.pyplot as plt
 
+
+matplotlib.use('Agg')  # ใช้ backend แบบไม่ต้องเปิด GUI
 # ฟังก์ชันตรวจสอบว่า user ไม่ใช่ customer
 def is_not_customer(user):
     return user.is_authenticated and user.role != "customer"
@@ -513,7 +517,6 @@ def upload_slip(request, order_id):
 
 from django.contrib.auth.decorators import login_required, user_passes_test
 
-<<<<<<< HEAD
 
 
 from django.shortcuts import render
@@ -644,7 +647,6 @@ def dashboard_view(request):
 
     except Exception as e:
         return HttpResponse(f"An error occurred: {str(e)}")
-=======
 def is_admin(user):
     return user.is_authenticated and user.role == "admin"
 
@@ -697,4 +699,3 @@ def reject_order(request, order_id):
     messages.error(request, f"❌ คำสั่งซื้อ #{order.id} ถูกปฏิเสธแล้ว!")
 
     return redirect('admin_payment_list')  # ✅ กลับไปที่หน้าตรวจสอบการชำระเงิน
->>>>>>> eecd3f1 (Final Edit)
