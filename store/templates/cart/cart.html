@@ -39,10 +39,10 @@
                         <td>
                             <form method="POST" action="{% url 'update_cart_quantity' item.id %}" class="d-flex">
                                 {% csrf_token %}
-                                <input type="number" name="quantity" value="{{ item.quantity }}" min="1" class="form-control w-50">
+                                <input type="number" name="quantity" value="{{ item.quantity }}" min="1" max="{{ item.product.stock }}" class="form-control w-50">
                                 <button type="submit" class="btn btn-primary ms-2">อัปเดต</button>
                             </form>
-                        </td>
+                        </td>                        
                         
                         <td>฿{{ item.total_price }}</td>
 

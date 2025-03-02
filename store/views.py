@@ -181,16 +181,20 @@ def cart_view(request):
 @login_required(login_url='login')
 def add_to_cart(request, product_id):
     product = get_object_or_404(Product, id=product_id)
-    
-    cart_item, created = Cart.objects.get_or_create(
-        customer=request.user, product=product,
-        defaults={"updated_at": timezone.now()}  # ✅ ใช้ timezone.now() เพื่อกำหนดค่า updated_at
-    )
-    
+    cart_item, created = Cart.objects.get_or_create(customer=request.user, product=product)
+
     if not created:
-        cart_item.quantity += 1
-        cart_item.updated_at = timezone.now()  # ✅ อัปเดตค่า updated_at ทุกครั้งที่เพิ่มสินค้า
-        cart_item.save()
+        if cart_item.quantity < product.stock:  # ✅ เช็คว่ายังมีสต็อกให้เพิ่มได้
+            cart_item.quantity += 1
+            cart_item.save()
+        else:
+            messages.error(request, f"❌ ไม่สามารถเพิ่ม {product.name} ได้เกิน {product.stock} ชิ้น")
+    else:
+        if product.stock > 0:
+            cart_item.quantity = 1
+            cart_item.save()
+        else:
+            messages.error(request, f"❌ สินค้า {product.name} หมดสต็อก!")
 
     return redirect("home")
 
@@ -207,17 +211,23 @@ def remove_from_cart(request, cart_id):
 @login_required(login_url='login')
 def update_cart_quantity(request, cart_id):
     cart_item = get_object_or_404(Cart, id=cart_id, customer=request.user)
+    product = cart_item.product
 
     if request.method == "POST":
         new_quantity = int(request.POST["quantity"])
-        if new_quantity > 0:
+
+        if new_quantity > product.stock:
+            messages.error(request, f"❌ จำนวนสินค้าเกินสต็อกสูงสุด ({product.stock} ชิ้น)")
+        elif new_quantity > 0:
             cart_item.quantity = new_quantity
             cart_item.save()
+            messages.success(request, "✅ อัปเดตจำนวนสินค้าสำเร็จ!")
         else:
             cart_item.delete()
+            messages.success(request, "❌ ลบสินค้าออกจากตะกร้าแล้ว!")
 
-    messages.success(request, "✏️ อัปเดตจำนวนสินค้าสำเร็จ!")
     return redirect("cart_view")
+
 
 
 # ✅ ปรับ `checkout` ให้แสดง Alert 
@@ -303,24 +313,41 @@ def confirm_order(request):
 
 
 
-@login_required
+@login_required(login_url='login')
 def place_order(request):
     cart_items = Cart.objects.filter(customer=request.user)
+    
     if not cart_items.exists():
         messages.error(request, "❌ ไม่สามารถสร้างคำสั่งซื้อได้เพราะตะกร้าว่างเปล่า!")
         return redirect("cart_view")
 
     total_amount = sum(item.product.price * item.quantity for item in cart_items)
+    
+    # ✅ สร้างคำสั่งซื้อใหม่
     order = Order.objects.create(customer=request.user, total_amount=total_amount)
 
     for item in cart_items:
-        OrderItem.objects.create(order=order, product=item.product, quantity=item.quantity, price=item.product.price)
+        product = item.product
 
-    cart_items.delete()  # ✅ ล้างตะกร้าหลังสั่งซื้อสำเร็จ
+        # ✅ ตรวจสอบว่าสต็อกสินค้าพอหรือไม่
+        if item.quantity > product.stock:
+            messages.error(request, f"❌ สินค้า {product.name} คงเหลือเพียง {product.stock} ชิ้น ไม่สามารถสั่งซื้อได้")
+            return redirect("cart_view")
 
-    messages.success(request, "✅ คำสั่งซื้อถูกสร้างเรียบร้อยแล้ว!")
+        # ✅ ลดสต็อกสินค้าในฐานข้อมูล
+        product.stock -= item.quantity
+        product.save()
+
+        # ✅ บันทึกรายการสินค้าในคำสั่งซื้อ
+        OrderItem.objects.create(order=order, product=product, quantity=item.quantity, price=item.product.price)
+
+    # ✅ ล้างตะกร้าหลังสั่งซื้อ
+    cart_items.delete()
+
+    messages.success(request, "✅ คำสั่งซื้อถูกสร้างเรียบร้อยแล้ว และสต็อกสินค้าถูกอัปเดต!")
     
-    return redirect(reverse("order_list"))
+    return redirect("order_list")
+
 
 @login_required
 def payment_view(request, order_id):
