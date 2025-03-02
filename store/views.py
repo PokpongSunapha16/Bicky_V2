@@ -32,7 +32,7 @@ def register_view(request):
         form = RegisterForm(request.POST)
         if form.is_valid():
             user = form.save(commit=False)  # ✅ ยังไม่บันทึกลงฐานข้อมูล
-            user.role = "member"  # ✅ กำหนดค่า role เป็น "member" อัตโนมัติ
+            user.role = "customer"  # ✅ กำหนดค่า role เป็น "member" อัตโนมัติ
             user.set_password(form.cleaned_data["password1"])  # ✅ เข้ารหัสรหัสผ่าน
             user.save()  # ✅ บันทึกข้อมูลลงฐานข้อมูล
             login(request, user)  # ✅ ล็อกอินอัตโนมัติหลังสมัคร

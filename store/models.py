@@ -4,16 +4,12 @@ from django.db import models
 class CustomUser(AbstractUser):
     ROLE_CHOICES = [
         ("customer", "Customer"),
-        ("seller", "Seller"),
         ("admin", "Admin"),
     ]
     role = models.CharField(max_length=10, choices=ROLE_CHOICES, default="customer")
 
     groups = models.ManyToManyField(Group, related_name="customuser_groups", blank=True)
     user_permissions = models.ManyToManyField(Permission, related_name="customuser_permissions", blank=True)
-
-    def is_seller(self):
-        return self.role == "seller"
 
     def is_customer(self):
         return self.role == "customer"
