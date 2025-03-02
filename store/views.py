@@ -95,6 +95,7 @@ def add_product(request):
         stock = request.POST.get("stock", 0)  
         image = request.FILES.get("image")
 
+        category = request.POST.get("category")  # ตรวจสอบว่า category ถูกดึงมาถูกต้อง
         Product.objects.create(
             seller=request.user,
             name=name,
@@ -102,7 +103,9 @@ def add_product(request):
             price=price,
             stock=int(stock),
             image=image,
+            category=category,  # ตรวจสอบว่ามีการเก็บ category
         )
+
         return redirect("product_list")
 
     return render(request, "products/add_product.html")
@@ -118,6 +121,7 @@ def edit_product(request, product_id):
         product.description = request.POST["description"]
         product.price = request.POST["price"]
         product.stock = request.POST["stock"]
+        product.category = request.POST["category"]  # ✅ เพิ่มบรรทัดนี้เพื่ออัปเดตประเภทสินค้า
         product.save()
         return redirect("product_list")
 
@@ -188,7 +192,7 @@ def add_to_cart(request, product_id):
         cart_item.updated_at = timezone.now()  # ✅ อัปเดตค่า updated_at ทุกครั้งที่เพิ่มสินค้า
         cart_item.save()
 
-    return redirect("cart_view")
+    return redirect("home")
 
 
 # ✅ ลบสินค้าออกจากตะกร้า

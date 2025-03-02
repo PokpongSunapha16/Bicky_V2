@@ -45,6 +45,20 @@
                     <input type="file" name="image" class="form-control">
                 </div>
 
+                <div class="mb-3">
+                    <label class="form-label">🔖 ประเภทสินค้า:</label>
+                    <select name="category" class="form-control" required>
+                        <option value="" disabled selected>เลือกประเภทสินค้า</option>
+                        <option value="electronics">อิเล็กทรอนิกส์</option>
+                        <option value="clothing">เสื้อผ้า</option>
+                        <option value="accessories">อุปกรณ์เสริม</option>
+                        <option value="home_appliances">เครื่องใช้ไฟฟ้าภายในบ้าน</option>
+                        <option value="books">หนังสือ</option>
+                        <option value="others">อื่นๆ</option>
+                    </select>
+                </div>
+                
+
                 <div class="d-flex justify-content-between">
                     <a href="{% url 'product_list' %}" class="btn btn-secondary">⬅️ กลับ</a>
                     <button type="submit" class="btn btn-success">✔️ เพิ่มสินค้า</button>

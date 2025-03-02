@@ -38,6 +38,19 @@ class Product(models.Model):
     stock = models.IntegerField()
     image = models.ImageField(upload_to='product_images/', blank=True, null=True)  # ✅ อนุญาตให้ว่างได้
     created_at = models.DateTimeField(auto_now_add=True)
+    category = models.CharField(
+        max_length=100,
+        choices=(
+            ('electronics', 'อิเล็กทรอนิกส์'),
+            ('clothing', 'เสื้อผ้า'),
+            ('accessories', 'อุปกรณ์เสริม'),
+            ('home_appliances', 'เครื่องใช้ไฟฟ้าภายในบ้าน'),
+            ('books', 'หนังสือ'),
+            ('others', 'อื่นๆ')
+        ),
+        default='others'  # กำหนดค่าเริ่มต้นเป็น 'อื่นๆ'
+    )
+
 
     def __str__(self):
         return self.name

@@ -35,6 +35,18 @@
             </div>
 
             <div class="mb-3">
+                <label for="category" class="form-label">🔖 ประเภทสินค้า</label>
+                <select class="form-control" id="category" name="category" required>
+                    <option value="electronics" {% if product.category == "electronics" %}selected{% endif %}>อิเล็กทรอนิกส์</option>
+                    <option value="clothing" {% if product.category == "clothing" %}selected{% endif %}>เสื้อผ้า</option>
+                    <option value="accessories" {% if product.category == "accessories" %}selected{% endif %}>อุปกรณ์เสริม</option>
+                    <option value="home_appliances" {% if product.category == "home_appliances" %}selected{% endif %}>เครื่องใช้ไฟฟ้าภายในบ้าน</option>
+                    <option value="books" {% if product.category == "books" %}selected{% endif %}>หนังสือ</option>
+                    <option value="others" {% if product.category == "others" %}selected{% endif %}>อื่นๆ</option>
+                </select>
+            </div>
+
+            <div class="mb-3">
                 <label for="image" class="form-label">🖼️ รูปสินค้า</label>
                 <input type="file" class="form-control" id="image" name="image">
                 {% if product.image %}
