@@ -1,5 +1,5 @@
 from django import forms
-from .models import CustomUser  # หรือโมเดลที่มีอยู่จริง
+from .models import *  # หรือโมเดลที่มีอยู่จริง
 
 
 class elec(forms.ModelForm):
@@ -41,3 +41,8 @@ class AdminRegisterForm(UserCreationForm):
         if commit:
             user.save()
         return user
+
+class PaymentSlipForm(forms.ModelForm):
+    class Meta:
+        model = Order
+        fields = ['payment_slip']  # ให้สามารถอัปโหลดสลิปได้

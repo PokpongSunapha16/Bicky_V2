@@ -12,42 +12,38 @@
 </head>
 <body>
 
-    <!-- ✅ แถบเมนูด้านบน -->
-    <header class="navbar navbar-expand-lg navbar-light bg-success text-white px-3">
+    <!-- ✅ Navbar -->
+    <header class="navbar navbar-expand-lg navbar-dark bg-success p-3">
         <a class="navbar-brand text-white" href="{% url 'home' %}">🛒 ระบบ POS</a>
-        <a href="{% url 'settings' %}" class="btn btn-light ms-auto">⚙️ ตั้งค่า</a>
-        <a href="{% url 'cart_view' %}" class="btn btn-warning ms-2">🛒 ตะกร้าสินค้า</a>
+        <div class="ms-auto">
+            <a href="{% url 'settings' %}" class="btn btn-light me-2">⚙️ เมนู</a>
+            <a href="{% url 'cart_view' %}" class="btn btn-warning">🛒 ตะกร้าสินค้า</a>
+        </div>
     </header>
- 
-    
-    <div class="container-fluid">
-        <div class="row">
-            <!-- ✅ รายการสินค้า (Product List) -->
-            <div class="col-md-7 p-3">
-                <h3>เลือกสินค้า</h3>
-                <div class="product-grid">
-                    {% for product in products %}
-                    <div class="product-card">
-                        <img src="{% if product.image %}{{ product.image.url }}{% else %}{% static 'media/default.png' %}{% endif %}" alt="{{ product.name }}">
-                        <h3>{{ product.name }}</h3>
-                        <p>฿{{ product.price }}</p>
-                
-                        <!-- ✅ Form สำหรับเพิ่มสินค้าไปยังตะกร้า -->
-                        <form action="{% url 'add_to_cart' product.id %}" method="post">
-                            {% csrf_token %}
-                            <button type="submit" class="btn btn-primary">เพิ่มลงตะกร้า</button>
-                        </form>
-                    </div>
-                {% endfor %}
-                
-                </div>
+
+    <!-- ✅ Main Content -->
+    <div class="container mt-4">
+        <h3 class="text-center">เลือกสินค้า</h3>
+
+        <!-- ✅ รายการสินค้า -->
+        <div class="product-grid">
+            {% for product in products %}
+            <div class="product-card">
+                <img src="{% if product.image %}{{ product.image.url }}{% else %}{% static 'media/default.png' %}{% endif %}" alt="{{ product.name }}">
+                <h3>{{ product.name }}</h3>
+                <p>฿{{ product.price }}</p>
+
+                <!-- ✅ Form เพิ่มสินค้าลงตะกร้า -->
+                <form action="{% url 'add_to_cart' product.id %}" method="post">
+                    {% csrf_token %}
+                    <button type="submit" class="btn btn-primary w-100">➕ เพิ่มลงตะกร้า</button>
+                </form>
             </div>
-            
-
-
+            {% endfor %}
         </div>
     </div>
 
-    <script src="{% static 'js/pos.js' %}"></script> <!-- ✅ เรียกใช้ JavaScript -->
+    <!-- ✅ JavaScript -->
+    <script src="{% static 'js/pos.js' %}"></script>
 </body>
 </html>

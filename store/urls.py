@@ -19,13 +19,6 @@ urlpatterns = [
     path("pos/", pos_view, name="pos"),  # ✅ เพิ่มเส้นทาง POS
     path("settings/", settings_view, name="settings"),
 
-    # ✅ ระบบจัดการผู้ใช้
-    path("admin/register/", admin_register_view, name="admin_register"),
-    path("admin/login/", admin_login_view, name="admin_login"),
-    #path("admin/dashboard/", admin_dashboard, name="admin_dashboard"),
-    path("admin/logout/", admin_logout, name="admin_logout"),
-
-
     path("dashboard/", dashboard_view, name="dashboard"),  # ✅ เปลี่ยนเป็น dashboard/
 
 
@@ -43,8 +36,16 @@ urlpatterns = [
 
     path("orders/", order_list, name="order_list"),  # ✅ ต้องมี path นี้
     path("orders/<int:order_id>/", order_detail, name="order_detail"),  # ✅ ต้องมีเส้นทางนี้
-    path('upload-slip/', views.upload_slip, name='upload_slip'),
+    path('upload-slip/<int:order_id>/', views.upload_slip, name='upload_slip'),
+
+    path('approve-order/<int:order_id>/', views.approve_order, name='approve_order'),  # ✅ URL ถูกต้อง  # ✅ เส้นทางให้ Admin กดอนุมัติ
+    path('order/payments/', views.admin_payment_list, name='admin_payment_list'),  # ✅ URL สำหรับ Admin
+    path('reject-order/<int:order_id>/', views.reject_order, name='reject_order'),  # ✅ URL สำหรับปุ่มไม่อนุมัติ
+
 
 
 
 ]
+
+
+

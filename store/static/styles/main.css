@@ -1,0 +1,95 @@
+/* ✅ ปรับพื้นหลังให้เป็น Gradient */
+body {
+    background: linear-gradient(to right, #6a11cb, #2575fc);
+    color: white;
+    text-align: center;
+}
+
+/* ✅ ปรับ Navbar ให้เป็นสีโปร่งใส */
+.navbar {
+    background: rgba(255, 255, 255, 0); /* ✅ โปร่งใส */
+    box-shadow: none; /* ✅ ไม่มีเงา */
+    padding: 15px;
+}
+.navbar a {
+    color: white;
+    font-size: 18px;
+    margin-right: 15px;
+    text-decoration: none;
+}
+
+/* ✅ ปรับปุ่มให้กลมกลืน */
+.btn-register {
+    background: rgba(255, 255, 255, 0.3);
+    color: white;
+    font-size: 16px;
+    font-weight: bold;
+    border-radius: 8px;
+    padding: 8px 15px;
+    border: none;
+}
+.btn-register:hover {
+    background: rgba(255, 255, 255, 0.5);
+}
+.btn-login {
+    background: gold;
+    color: black;
+    font-size: 16px;
+    font-weight: bold;
+    border-radius: 8px;
+    padding: 8px 15px;
+    border: none;
+}
+.btn-login:hover {
+    background: orange;
+}
+
+/* ✅ ปรับสไตล์ของการ์ดสินค้า */
+.card {
+    background: white;
+    color: black;
+    border-radius: 20px; /* ✅ ขอบมนขึ้น */
+    padding: 20px;
+    box-shadow: 0px 4px 15px rgba(0, 0, 0, 0.2); /* ✅ เพิ่มเงา */
+    transition: transform 0.3s ease-in-out;
+    max-width: 350px; /* ✅ จำกัดความกว้างการ์ด */
+    margin: auto; /* ✅ จัดให้อยู่ตรงกลาง */
+}
+.card:hover {
+    transform: scale(1.05);
+}
+.btn-disabled {
+    background: #adb5bd;
+    color: white;
+    cursor: not-allowed;
+    font-size: 16px;
+    border-radius: 10px;
+    padding: 10px;
+    width: 100%;
+}
+.product-img {
+    max-width: 100%;
+    height: auto;
+    border-radius: 15px;
+}
+
+/* ✅ ปุ่มโปร่งใส ไม่มีกรอบ */
+.btn-gradient {
+    background: transparent; /* ✅ โปร่งใส */
+    border: none; /* ✅ เอาเส้นกรอบออก */
+    color: white;
+    font-size: 18px;
+    font-weight: bold;
+    border-radius: 8px;
+    padding: 10px 20px;
+    transition: all 0.3s ease-in-out;
+    text-decoration: none;
+}
+
+/* ✅ เมื่อ Hover ให้มีสี Gradient */
+.btn-gradient:hover {
+    background: linear-gradient(to right, #ff7eb3, #ff758c);
+    color: white;
+    transform: scale(1.05);
+    box-shadow: 0px 4px 10px rgba(255, 120, 150, 0.5);
+}

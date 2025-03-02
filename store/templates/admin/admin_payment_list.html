@@ -1,0 +1,99 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="th">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>💰 ตรวจสอบการชำระเงิน</title>
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css">
+    <script>
+        function filterStatus() {
+            let selectedStatus = document.getElementById("statusFilter").value;
+            window.location.href = "?status=" + selectedStatus;  // ✅ เมื่อเลือกแล้วโหลดหน้าใหม่
+        }
+    </script>
+</head>
+<body>
+
+    <div class="container mt-5">
+        <h2 class="text-center">💰 ตรวจสอบการชำระเงิน</h2>
+
+        <!-- ✅ Dropdown กรองสถานะ -->
+        <div class="mb-3">
+            <label for="statusFilter" class="form-label">กรองตามสถานะ:</label>
+            <select id="statusFilter" class="form-select" onchange="filterStatus()">
+                <option value="" {% if not status_filter %}selected{% endif %}>📋 ทั้งหมด</option>
+                <option value="pending" {% if status_filter == "pending" %}selected{% endif %}>⌛ รอดำเนินการ</option>
+                <option value="completed" {% if status_filter == "completed" %}selected{% endif %}>✅ สั่งซื้อสำเร็จ</option>
+                <option value="rejected" {% if status_filter == "rejected" %}selected{% endif %}>❌ ถูกปฏิเสธ</option>
+            </select>
+        </div>
+
+        <!-- ✅ ตารางแสดงคำสั่งซื้อทั้งหมด -->
+        <table class="table table-bordered text-center">
+            <thead class="table-dark">
+                <tr>
+                    <th>#</th>
+                    <th>วันที่สั่งซื้อ</th>
+                    <th>จำนวนเงิน</th>
+                    <th>สถานะ</th>
+                    <th>สลิปโอนเงิน</th>
+                    <th>อนุมัติ</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for order in orders %}
+                <tr>
+                    <td>{{ order.id }}</td>
+                    <td>{{ order.created_at|date:"d/m/Y H:i" }}</td>
+                    <td>{{ order.total_amount|floatformat:2 }} บาท</td>
+                    <td>
+                        {% if order.status == "pending" %}
+                            <span class="badge bg-warning text-dark">⌛ รอดำเนินการ</span>
+                        {% elif order.status == "completed" %}
+                            <span class="badge bg-success">✅ สั่งซื้อสำเร็จ</span>
+                        {% elif order.status == "rejected" %}
+                            <span class="badge bg-danger">❌ ถูกปฏิเสธ</span>
+                        {% else %}
+                            <span class="badge bg-secondary">📌 ไม่ทราบสถานะ</span>
+                        {% endif %}
+                    </td>
+                    <td>
+                        {% if order.payment_slip %}
+                            <a href="{{ order.payment_slip.url }}" target="_blank">
+                                <img src="{{ order.payment_slip.url }}" width="100" height="100">
+                            </a>
+                        {% else %}
+                            <span class="text-muted">❌ ไม่มีสลิป</span>
+                        {% endif %}
+                    </td>
+                    <td>
+                        {% if order.status == "pending" %}
+                            <form action="{% url 'approve_order' order.id %}" method="post" class="d-inline">
+                                {% csrf_token %}
+                                <button type="submit" class="btn btn-success">✅ อนุมัติ</button>
+                            </form>
+                            <form action="{% url 'reject_order' order.id %}" method="post" class="d-inline">
+                                {% csrf_token %}
+                                <button type="submit" class="btn btn-danger">❌ ไม่อนุมัติ</button>
+                            </form>
+                        {% elif order.status == "completed" %}
+                            <span class="badge bg-success">✔️ อนุมัติแล้ว</span>
+                        {% elif order.status == "rejected" %}
+                            <span class="badge bg-danger">❌ ถูกปฏิเสธ</span>
+                        {% endif %}
+                    </td>
+                </tr>
+                {% empty %}
+                <tr>
+                    <td colspan="6" class="text-center">📌 ไม่มีคำสั่งซื้อที่ต้องตรวจสอบ</td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+
+        <a href="{% url 'settings' %}" class="btn btn-secondary btn-lg mt-3">⬅️ กลับ</a>
+    </div>
+
+</body>
+</html>

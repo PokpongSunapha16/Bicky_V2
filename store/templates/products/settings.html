@@ -11,16 +11,28 @@
     <div class="container mt-4">
         <h2>⚙️ ตั้งค่าระบบ</h2>
         <ul class="list-group">
-            <li class="list-group-item"><a href="{% url 'dashboard' %}" class="btn btn-info w-100">📊 ไปที่ Dashboard</a></li>
-            <li class="list-group-item"><a href="{% url 'add_product' %}" class="btn btn-primary w-100">➕ เพิ่มสินค้า</a></li>
+            
+            {% if request.user.is_authenticated and request.user.role != "customer" %}
+                <li class="list-group-item"><a href="{% url 'dashboard' %}" class="btn btn-info w-100">📊 ไปที่ Dashboard</a></li>
+                <li class="list-group-item"><a href="{% url 'add_product' %}" class="btn btn-primary w-100">➕ เพิ่มสินค้า</a></li>
+                <li class="list-group-item"><a href="{% url 'product_list' %}" class="btn btn-warning w-100">📦 จัดการสินค้า</a></li>
+                <li class="list-group-item"><a href="{% url 'admin_payment_list' %}" class="btn btn-warning w-100">💰 ตรวจสอบการชำระเงิน</a></li>
+            {% endif %}
+
             <li class="list-group-item"><a href="{% url 'order_list' %}" class="btn btn-primary w-100">ประวัติการสั่งซื้อ</a></li>
-            <li class="list-group-item"><a href="{% url 'product_list' %}" class="btn btn-warning w-100">📦 จัดการสินค้า</a></li>
+
             <li class="list-group-item">
                 <form action="{% url 'logout' %}" method="post" class="d-inline">
                     {% csrf_token %}
                     <button type="submit" class="btn btn-danger w-100">🚪 ออกจากระบบ</button>
                 </form>
             </li>
+
+            <!-- ✅ ปุ่มย้อนกลับ -->
+            <li class="list-group-item">
+                <button onclick="history.back()" class="btn btn-secondary w-100">⬅️ ย้อนกลับ</button>
+            </li>
+
         </ul>
     </div>
 </body>

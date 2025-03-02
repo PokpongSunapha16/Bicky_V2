@@ -10,21 +10,25 @@
 <body>
 
     <div class="container mt-5">
-        <h2 class="text-center">📤 อัพโหลดสลิปโอนเงิน</h2>
-
-        <div class="card shadow p-4">
-            <form action="{% url 'upload_slip' %}" method="post" enctype="multipart/form-data" class="mt-3">
+        <h2 class="text-center">📤 อัปโหลดสลิปโอนเงิน</h2>
+    
+        {% if order.status == "completed" %}
+            <p class="alert alert-success">✅ สถานะ: <strong>สั่งซื้อสำเร็จ</strong></p>
+            <img src="{{ order.payment_slip.url }}" alt="สลิปการโอนเงิน" width="300">
+        {% else %}
+            <form action="{% url 'upload_slip' order.id %}" method="post" enctype="multipart/form-data" class="mt-3">
                 {% csrf_token %}
-
                 <label for="slip" class="form-label">🖼 เลือกไฟล์สลิปโอนเงิน:</label>
-                <input type="file" id="slip" name="slip" accept="image/*" required class="form-control">
-
+                <input type="file" id="slip" name="payment_slip" accept="image/*" required class="form-control">
                 <button type="submit" class="btn btn-success btn-lg mt-3 w-100">✅ อัพโหลด</button>
             </form>
-        </div>
+        {% endif %}
 
+        </div>
+    
         <a href="{% url 'order_list' %}" class="btn btn-secondary btn-lg mt-3 w-100">⬅️ กลับ</a>
     </div>
+    
 
 </body>
 </html>

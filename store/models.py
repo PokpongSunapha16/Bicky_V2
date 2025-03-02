@@ -63,18 +63,33 @@ class Cart(models.Model):
     quantity = models.IntegerField(default=1)
     updated_at = models.DateTimeField(auto_now=True)  # ✅ เพิ่ม auto_now=True
 
-
-# ✅ Order Model
 class Order(models.Model):
     STATUS_CHOICES = [
-        ('pending', 'Pending'),
-        ('shipped', 'Shipped'),
-        ('delivered', 'Delivered'),
+        ('pending', 'รอดำเนินการ'),
+        ('completed', 'สั่งซื้อสำเร็จ'),
+        ('rejected', 'ถูกปฏิเสธ'),  # ✅ เพิ่มสถานะ "ไม่อนุมัติ"
     ]
-    customer = models.ForeignKey(CustomUser, on_delete=models.CASCADE, related_name="orders")
+
+    customer = models.ForeignKey('CustomUser', on_delete=models.CASCADE, related_name="orders")
     total_amount = models.DecimalField(max_digits=10, decimal_places=2)
     status = models.CharField(max_length=10, choices=STATUS_CHOICES, default='pending')
     created_at = models.DateTimeField(auto_now_add=True)
+    payment_slip = models.ImageField(upload_to='payment_slips/', blank=True, null=True)  # ✅ อัปโหลดสลิป
+
+    def approve_order(self):
+        """ ✅ ฟังก์ชันสำหรับ Admin ใช้เปลี่ยนสถานะคำสั่งซื้อเป็น 'สั่งซื้อสำเร็จ' """
+        self.status = 'completed'
+        self.save()
+
+    def reject_order(self):
+        """ ❌ ฟังก์ชันสำหรับ Admin ใช้เปลี่ยนสถานะคำสั่งซื้อเป็น 'ถูกปฏิเสธ' """
+        if self.payment_slip:
+            self.payment_slip.delete()  # ✅ ลบไฟล์สลิปจากฐานข้อมูล
+        self.status = 'rejected'
+        self.save()
+
+    def __str__(self):
+        return f"Order {self.id} - {self.get_status_display()}"
 
 
 # ✅ Order Items Model
@@ -84,7 +99,7 @@ class OrderItem(models.Model):
     quantity = models.PositiveIntegerField()
     price = models.DecimalField(max_digits=10, decimal_places=2)
 
-    def total_price(self):
+    def total_amount(self):
         return self.quantity * self.price
 
 

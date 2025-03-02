@@ -13,19 +13,25 @@
         <h2 class="text-center">📦 รายละเอียดคำสั่งซื้อ</h2>
 
         <div class="card shadow p-4">
-            <h4>🆔 หมายเลขออเดอร์: {{ order.id }}</h4>
-            <p>📅 วันที่สั่งซื้อ: {{ order.created_at|date:"d/m/Y H:i" }}</p>
-            <p>💰 ยอดรวม: <strong class="text-success fs-4">{{ order.total_amount|floatformat:2 }} บาท</strong></p>
-            <p>🚚 สถานะ: 
+            <h4>🆔 หมายเลขออเดอร์ : {{ order.id }}</h4>
+            <p>📅 วันที่สั่งซื้อ : {{ order.created_at|date:"d/m/Y H:i" }}</p>
+            <p>💰 ยอดรวม : <strong class="text-success fs-4">{{ order.total_amount|floatformat:0 }} บาท</strong></p>
+            <p>🚚 สถานะ : 
                 {% if order.status == "pending" %}
                     <span class="badge bg-warning text-dark">รอดำเนินการ</span>
-                {% elif order.status == "shipped" %}
-                    <span class="badge bg-primary">กำลังจัดส่ง</span>
+                {% elif order.status == "completed" %}
+                    <span class="badge bg-success">คำสั่งซื้อสำเร็จ</span>
+                {% elif order.status == "rejected" %}
+                    <span class="badge bg-danger">❌ การชำระเงินถูกปฏิเสธ กรุณาสั่งซื้อใหม่อีกครั้ง </span>
                 {% else %}
-                    <span class="badge bg-success">จัดส่งแล้ว</span>
+                    <span class="badge bg-secondary">ไม่ทราบสถานะ</span>
                 {% endif %}
             </p>
-            <a href="{% url 'upload_slip' %}" class="btn btn-secondary btn-lg mt-3">อัพโหลดสลิปโอนเงิน</a>
+            
+            {% if order.status == "pending" and not order.payment_slip %}
+                <a href="{% url 'upload_slip' order.id %}" class="btn btn-primary">📤 อัปโหลดสลิปโอนเงิน</a>
+            {% endif %}
+
 
         </div>
 
@@ -44,8 +50,8 @@
                 <tr>
                     <td>{{ item.product.name }}</td>
                     <td>{{ item.quantity }}</td>
-                    <td>{{ item.price|floatformat:2 }}</td>
-                    <td>{{ item.quantity|floatformat:2 }}</td>
+                    <td>{{ item.price|floatformat:0 }}</td>
+                    <td>{{ order.total_amount|floatformat:0 }}</td>
                 </tr>
                 {% endfor %}
             </tbody>

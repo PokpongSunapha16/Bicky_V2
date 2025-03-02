@@ -33,12 +33,15 @@
                     <td>
                         {% if order.status == "pending" %}
                             <span class="badge bg-warning text-dark">รอดำเนินการ</span>
-                        {% elif order.status == "shipped" %}
-                            <span class="badge bg-primary">กำลังจัดส่ง</span>
+                        {% elif order.status == "completed" %}
+                            <span class="badge bg-success">คำสั่งซื้อสำเร็จ</span>
+                        {% elif order.status == "rejected" %}
+                            <span class="badge bg-danger">❌ คำสั่งซื้อถูกปฏิเสธ</span>
                         {% else %}
-                            <span class="badge bg-success">จัดส่งแล้ว</span>
+                            <span class="badge bg-secondary">ไม่ทราบสถานะ</span>
                         {% endif %}
                     </td>
+                    
                     <td>
                         <a href="{% url 'order_detail' order_id=order.id %}" class="btn btn-info btn-sm">ดูรายละเอียด</a>
                     </td>

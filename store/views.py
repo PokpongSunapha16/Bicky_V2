@@ -1,8 +1,8 @@
 from django.shortcuts import render,redirect
 from django.contrib.auth import authenticate, login, logout
 from django.contrib import messages
-from .forms import RegisterForm
-from django.contrib.auth.decorators import login_required
+from .forms import *
+from django.contrib.auth.decorators import *
 from django.shortcuts import render, redirect, get_object_or_404
 from .models import Product, Cart
 from django.http import HttpResponseForbidden
@@ -12,20 +12,26 @@ from django.utils import timezone  # ✅ เพิ่มบรรทัดนี
 from django.urls import reverse
 import json
 from decimal import Decimal
+import os
+from django.conf import settings
+from django.shortcuts import render, get_object_or_404, redirect
+from django.contrib import messages
 
+# ฟังก์ชันตรวจสอบว่า user ไม่ใช่ customer
+def is_not_customer(user):
+    return user.is_authenticated and user.role != "customer"
 
 def index_view(request):
-    return render(request, "index.html")  # ✅ ตั้งให้ / แสดง index.html
+    """ แสดงหน้าหลัก พร้อมรายการสินค้าทั้งหมด แต่ห้ามกดสั่งซื้อ """
+    products = Product.objects.all()  # ✅ ดึงสินค้าทั้งหมดจากฐานข้อมูล
+    return render(request, 'index.html', {"products": products})
+
 
 @login_required(login_url='login')
 def home_view(request):
     products = Product.objects.all()  # ✅ ดึงสินค้าทั้งหมดจากฐานข้อมูล
     return render(request, "login/home.html" , {"products": products})  # ✅ ชี้ไปที่ templates/login/home.html
 
-
-@login_required(login_url='login')
-def dashboard_view(request):
-    return render(request, "dashboard.html")
 
 def register_view(request):
     if request.method == "POST":
@@ -67,7 +73,9 @@ def logout_view(request):
 
 
 
-# ✅ แสดงรายการสินค้า
+# ป้องกัน customer ไม่ให้เข้าถึงหน้า product list
+@login_required
+@user_passes_test(is_not_customer, login_url='home')
 @login_required(login_url='login')
 def product_list(request):
     products = Product.objects.all()
@@ -83,8 +91,9 @@ def pos_view(request):
     products = Product.objects.all()  # ✅ ดึงสินค้าทั้งหมดจากฐานข้อมูล
     return render(request, "pos.html", {"products": products})
 
-# ✅ เพิ่มสินค้าใหม่
-@login_required(login_url='login')
+# ป้องกัน customer ไม่ให้เข้าถึงหน้าเพิ่มสินค้า
+@login_required
+@user_passes_test(is_not_customer, login_url='home')
 def add_product(request):
     if request.method == "POST":
         print(request.POST)  # ✅ Debug ดูว่ามีค่าอะไรถูกส่งมา
@@ -454,7 +463,9 @@ def decimal_to_float(obj):
         return float(obj)  # ✅ แปลง Decimal เป็น float
     raise TypeError
 
+# ป้องกัน customer ไม่ให้เข้าถึง dashboard
 @login_required
+@user_passes_test(is_not_customer, login_url='home')
 def dashboard_view(request):
     # ✅ คำนวณสถิติ
     total_sales = Order.objects.filter(status="delivered").aggregate(total=models.Sum("total_amount"))["total"] or 0
@@ -481,27 +492,28 @@ from django.http import HttpResponse
 from .models import StorePayment
 from django.utils.timezone import now
 
-from django.shortcuts import render
-from django.utils.timezone import now
-from store.models import StorePayment
+def upload_slip(request, order_id):
+    order = get_object_or_404(Order, id=order_id)
 
-def upload_slip(request):
-    if request.method == 'POST' and request.FILES.get('slip'):
-        slip = request.FILES['slip']
+    if order.payment_slip:
+        messages.error(request, "❌ คุณได้อัปโหลดสลิปไปแล้ว ไม่สามารถอัปโหลดซ้ำได้")
+        return redirect('order_detail', order_id=order.id)
 
-        # สร้างรายการบันทึกการชำระเงินใหม่โดยไม่ต้องใช้ order
-        payment = StorePayment.objects.create(
-            payment_method="bank_transfer",
-            transaction_id=None,
-            paid=False,
-            paid_at=now(),
-            receipt=slip  # เก็บไฟล์สลิป
-        )
+    if request.method == "POST":
+        form = PaymentSlipForm(request.POST, request.FILES)
+        if form.is_valid():
+            order.payment_slip = form.cleaned_data['payment_slip']
+            order.save()  # ✅ ไม่เปลี่ยนสถานะเป็น completed
+            messages.success(request, "✅ อัปโหลดสลิปสำเร็จ! รอการอนุมัติจาก Admin")
+            return redirect('order_detail', order_id=order.id)
+    else:
+        form = PaymentSlipForm()
 
-        return render(request, 'upload_slip_success.html', {'slip_url': payment.receipt.url})
+    return render(request, 'payments/upload_slip.html', {'form': form, 'order': order})
 
-    return render(request, 'upload_slip.html')
+from django.contrib.auth.decorators import login_required, user_passes_test
 
+<<<<<<< HEAD
 
 
 from django.shortcuts import render
@@ -632,3 +644,57 @@ def dashboard_view(request):
 
     except Exception as e:
         return HttpResponse(f"An error occurred: {str(e)}")
+=======
+def is_admin(user):
+    return user.is_authenticated and user.role == "admin"
+
+@login_required
+@user_passes_test(is_admin)
+def approve_order(request, order_id):
+    """ อนุมัติคำสั่งซื้อ (เปลี่ยนสถานะเป็น 'completed') """
+    order = get_object_or_404(Order, id=order_id)  # ✅ ตรวจสอบว่าออเดอร์มีอยู่จริง
+
+    if order.status == "pending":  
+        order.approve_order()  # ✅ ใช้ฟังก์ชัน approve_order() ใน models.py
+        messages.success(request, f"✅ คำสั่งซื้อ #{order.id} อนุมัติเรียบร้อยแล้ว!")
+
+    return redirect('admin_payment_list')  # ✅ เปลี่ยนให้ Redirect ไปที่หน้า Admin
+
+
+@login_required
+@user_passes_test(is_admin)
+def admin_payment_list(request):
+    """ แสดงรายการออเดอร์ทั้งหมด และให้กรองตามสถานะ """
+    status_filter = request.GET.get('status', '')  # ✅ ดึงค่าจาก dropdown (ค่าเริ่มต้นเป็นค่าว่าง)
+
+    if status_filter and status_filter in ["pending", "completed", "rejected"]:
+        orders = Order.objects.filter(status=status_filter)  # ✅ กรองตามสถานะที่เลือก
+    else:
+        orders = Order.objects.all()  # ✅ ถ้าไม่เลือก ให้แสดงทั้งหมด
+
+    return render(request, 'admin/admin_payment_list.html', {
+        'orders': orders,
+        'status_filter': status_filter  # ✅ ส่งค่าไปยัง template
+    })
+
+
+import os
+
+@login_required
+@user_passes_test(is_admin)
+def reject_order(request, order_id):
+    """ ❌ ฟังก์ชันให้ Admin กด 'ไม่อนุมัติ' ออเดอร์ """
+    order = get_object_or_404(Order, id=order_id)
+
+    if order.payment_slip:
+        slip_path = os.path.join(settings.MEDIA_ROOT, str(order.payment_slip))
+        if os.path.exists(slip_path):
+            os.remove(slip_path)  # ✅ ลบไฟล์จริงจากเซิร์ฟเวอร์
+        order.payment_slip.delete()  # ✅ ลบจากฐานข้อมูล
+
+    order.status = "rejected"  # ✅ เปลี่ยนสถานะเป็น 'ไม่อนุมัติ'
+    order.save()
+    messages.error(request, f"❌ คำสั่งซื้อ #{order.id} ถูกปฏิเสธแล้ว!")
+
+    return redirect('admin_payment_list')  # ✅ กลับไปที่หน้าตรวจสอบการชำระเงิน
+>>>>>>> eecd3f1 (Final Edit)
