@@ -1,0 +1,230 @@
+/* ===== ตัวแปร CSS ===== */
+:root {
+    --primary: #341F97;      /* สีม่วงเข้ม */
+    --primary-light: #5C33F6; /* สีม่วงอ่อน */
+    --text-light: #f8f9fa;
+    --text-dark: #333;
+    --border-light: rgba(255, 255, 255, 0.2);
+    --sidebar-width: 300px;
+}
+
+/* ===== พื้นฐาน ===== */
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+}
+
+body {
+    font-family: 'Prompt', sans-serif;
+    background-color: #f5f7fa;
+    color: var(--text-dark);
+    min-height: 100vh;
+    position: relative;
+}
+
+a {
+    text-decoration: none;
+    color: inherit;
+}
+
+button {
+    cursor: pointer;
+    font-family: inherit;
+}
+
+/* ===== Navbar ===== */
+/* ===== Navbar ===== */
+.navbar {
+    background: linear-gradient(90deg, #341F97, #3742fa);
+    color: white;
+    padding: 0 30px; /* ลดแพดดิ้งลง */
+    display: flex;
+    justify-content: space-between; /* ใช้ space-between เพื่อให้โลโก้อยู่ซ้าย ปุ่มอยู่ขวา */
+    align-items: center;
+    height: 60px; /* ปรับความสูงให้พอดีกับในรูป */
+}
+
+.navbar-left {
+    display: flex;
+    align-items: center;
+}
+
+.navbar-brand {
+    font-size: 22px; /* ปรับขนาดตัวอักษรให้เท่ากับในรูป */
+    font-weight: 700;
+    color: white;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    padding: 0;
+    margin: 0;
+}
+
+.navbar-brand span:first-child {
+    color: #FFD700; /* สีเหลืองทองสำหรับไอคอนดาว */
+}
+
+.navbar-right {
+    display: flex;
+    gap: 15px; /* ระยะห่างระหว่างปุ่ม */
+    padding: 0;
+    margin: 0;
+}
+
+.btn-settings, .btn-cart {
+    background-color: rgba(255, 255, 255, 0.15);
+    border: none;
+    color: white;
+    padding: 10px 15px;
+    border-radius: 8px;
+    font-size: 16px;
+    min-width: 130px;
+    text-align: center;
+    font-weight: 500;
+    transition: all 0.3s ease;
+}
+
+/* ลบเส้นขอบทุกชนิดที่อาจเกิดขึ้น */
+.btn-cart {
+    border: none !important;
+    outline: none !important;
+    box-shadow: none !important;
+    text-decoration: none !important;
+}
+
+/* ลบเส้นขอบจากองค์ประกอบภายใน */
+.btn-cart *, .btn-cart img, .btn-cart svg {
+    border: none !important;
+    outline: none !important;
+    box-shadow: none !important;
+}
+
+/* ลบเส้นจาก pseudo-elements */
+.btn-cart::before, .btn-cart::after {
+    display: none !important;
+    border: none !important;
+    content: none !important;
+}
+
+
+/* ===== เนื้อหาหลัก ===== */
+.main-content {
+    padding: 20px;
+}
+
+/* ===== ไซด์บาร์ ===== */
+.settings-sidebar {
+    position: fixed;
+    top: 0;
+    right: 0;
+    width: var(--sidebar-width);
+    height: 100vh;
+    background-color: white;
+    box-shadow: -5px 0 15px rgba(0, 0, 0, 0.1);
+    z-index: 1000;
+    transform: translateX(100%);
+    transition: transform 0.3s ease;
+    display: flex;
+    flex-direction: column;
+}
+
+.settings-sidebar.active {
+    transform: translateX(0);
+}
+
+.sidebar-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 16px 20px;
+    border-bottom: 1px solid #eee;
+}
+
+.sidebar-header h3 {
+    font-size: 18px;
+    font-weight: 600;
+    color: var(--primary);
+}
+
+.btn-close {
+    background: none;
+    border: none;
+    font-size: 24px;
+    color: #999;
+}
+
+.sidebar-content {
+    flex: 1;
+    overflow-y: auto;
+    padding: 20px 0;
+}
+
+.sidebar-section {
+    margin-bottom: 20px;
+}
+
+.sidebar-section h4 {
+    padding: 0 20px;
+    margin-bottom: 10px;
+    font-size: 14px;
+    text-transform: uppercase;
+    color: #999;
+}
+
+.sidebar-link {
+    display: flex;
+    align-items: center;
+    padding: 10px 20px;
+    color: var(--text-dark);
+    transition: background-color 0.2s ease;
+    width: 100%;
+    text-align: left;
+    background: none;
+    border: none;
+}
+
+.sidebar-link:hover {
+    background-color: #f5f5f5;
+}
+
+.sidebar-icon {
+    margin-right: 12px;
+    font-size: 18px;
+}
+
+.logout-link {
+    color: #e74c3c;
+}
+
+.sidebar-logout {
+    margin-top: 20px;
+    border-top: 1px solid #eee;
+    padding-top: 20px;
+}
+
+/* ===== Overlay ===== */
+.sidebar-overlay {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background-color: rgba(0, 0, 0, 0.5);
+    z-index: 999;
+    opacity: 0;
+    visibility: hidden;
+    transition: opacity 0.3s ease, visibility 0.3s ease;
+}
+
+.sidebar-overlay.active {
+    opacity: 1;
+    visibility: visible;
+}
+
+/* ===== รองรับการแสดงผลบนอุปกรณ์ขนาดเล็ก ===== */
+@media (max-width: 768px) {
+    .settings-sidebar {
+        width: 80%;
+    }
+}

@@ -3,22 +3,19 @@
 <head>
     <title>Dash in Django</title>
     {% load plotly_dash %}
+    {% load static %}
     {% plotly_header %}
-    <style>
-        #container_iframe div{
-            height: 100%!important  ;
-        }
-    </style>
+    <link rel="stylesheet" href="{% static 'styles/dash.css' %}">
 </head>
 <body>
-
-
-
-
-    <h1>Dash App</h1>
-    <div style="height: 100%">
-        {% plotly_app name="SimpleExample" %}
-        {% plotly_footer %}
+    <div class="container">
+        <header>
+            <h1>Dash App</h1>
+        </header>
+        <div id="container_iframe">
+            {% plotly_app name="SimpleExample" %}
+            {% plotly_footer %}
+        </div>
     </div>
 </body>
 </html>

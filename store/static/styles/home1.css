@@ -1,6 +1,6 @@
 /* ✅ กำหนดค่าพื้นฐานของหน้า */
 body {
-    font-family: 'Arial', sans-serif;
+    font-family: 'Kanit', 'Sarabun', 'Arial', sans-serif;
     background-color: #f8f9fa; /* สีพื้นหลังอ่อน */
     margin: 0;
     padding: 0;
@@ -9,6 +9,8 @@ body {
 /* ✅ แถบเมนูด้านบน */
 .navbar {
     box-shadow: 0px 4px 10px rgba(0, 0, 0, 0.1); /* ใส่เงา */
+    background-color: #28a745 !important; /* สีเขียวสำหรับ navbar */
+    padding: 15px 0;
 }
 
 .navbar a {
@@ -16,51 +18,114 @@ body {
     font-weight: bold;
 }
 
+.navbar-brand {
+    color: white !important;
+    font-size: 22px;
+}
+
+.btn-light {
+    background-color: #ffffff;
+    border-color: #ffffff;
+    color: #333;
+    font-weight: 500;
+}
+
+.btn-warning {
+    background-color: #ffc107;
+    border-color: #ffc107;
+    color: #333;
+    font-weight: 500;
+}
+
 /* ✅ ตกแต่ง Grid ของสินค้า */
 .product-grid {
-    display: flex;
-    flex-wrap: wrap;
-    gap: 15px;
-    justify-content: flex-start;
-    padding: 10px;
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+    gap: 20px;
+    padding: 20px 10px;
 }
 
 /* ✅ สไตล์ของสินค้าแต่ละตัว */
 .product-card {
     background: white;
     border-radius: 10px;
-    padding: 10px;
-    width: 180px;
+    padding: 15px;
     text-align: center;
     transition: transform 0.3s ease-in-out, box-shadow 0.3s ease-in-out;
     cursor: pointer;
     box-shadow: 0px 4px 8px rgba(0, 0, 0, 0.1);
+    height: 330px; /* กำหนดความสูงคงที่ */
+    display: flex;
+    flex-direction: column;
 }
 
 .product-card:hover {
-    transform: scale(1.05);
-    box-shadow: 0px 6px 12px rgba(0, 0, 0, 0.15);
+    transform: translateY(-10px);
+    box-shadow: 0px 10px 15px rgba(0, 0, 0, 0.15);
 }
 
 /* ✅ ตกแต่งรูปสินค้า */
+.product-image-container {
+    height: 180px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    margin-bottom: 15px;
+}
+
 .product-card img {
-    width: 100%;
-    height: 120px;
-    object-fit: cover;
+    max-width: 100%;
+    max-height: 160px;
+    object-fit: contain;
     border-radius: 8px;
 }
 
 /* ✅ ชื่อและราคาสินค้า */
-.product-card h5 {
-    font-size: 16px;
-    font-weight: bold;
-    margin: 10px 0;
+.product-info {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
 }
 
-.product-card p {
-    font-size: 14px;
+.product-title {
+    font-size: 18px;
+    font-weight: bold;
+    margin: 10px 0;
+    height: 48px; /* กำหนดความสูงประมาณ 2 บรรทัด */
+    overflow: hidden;
+    text-overflow: ellipsis;
+    display: -webkit-box;
+    -webkit-line-clamp: 2;
+    -webkit-box-orient: vertical;
+}
+
+.product-price {
+    font-size: 20px;
     color: #28a745;
     font-weight: bold;
+    margin-bottom: 15px;
+}
+
+/* ✅ ปุ่มเพิ่มลงตะกร้า */
+.product-actions {
+    margin-top: auto; /* ดันให้อยู่ด้านล่าง */
+}
+
+.btn-primary {
+    background-color: #28a745;
+    border-color: #28a745;
+    color: white;
+    font-weight: 500;
+    width: 100%;
+    border-radius: 5px;
+    padding: 10px;
+    font-size: 16px;
+    transition: background-color 0.2s ease-in-out;
+}
+
+.btn-primary:hover {
+    background-color: #218838;
+    border-color: #218838;
 }
 
 /* ✅ ตกแต่งตะกร้าสินค้า */
@@ -86,9 +151,69 @@ body {
     background-color: #218838;
 }
 
+/* หัวข้อ */
+h3 {
+    font-size: 26px;
+    font-weight: 600;
+    color: #333;
+    text-align: center;
+    margin-bottom: 25px;
+    position: relative;
+}
+
+h3:after {
+    content: "";
+    position: absolute;
+    bottom: -10px;
+    left: 50%;
+    transform: translateX(-50%);
+    width: 50px;
+    height: 3px;
+    background-color: #28a745;
+}
+
 /* ✅ ปรับขนาดหน้าให้เหมาะสม */
 @media (max-width: 768px) {
     .product-grid {
-        justify-content: center;
+        grid-template-columns: repeat(auto-fill, minmax(160px, 1fr));
+        gap: 15px;
+    }
+    
+    .product-card {
+        padding: 12px;
+        height: 320px; /* ลดความสูงลงเล็กน้อยสำหรับหน้าจอขนาดเล็ก */
+    }
+    
+    .product-image-container {
+        height: 160px;
+    }
+    
+    .product-title {
+        font-size: 16px;
+    }
+    
+    .product-price {
+        font-size: 18px;
+    }
+}
+
+@media (max-width: 576px) {
+    .product-grid {
+        grid-template-columns: repeat(auto-fill, minmax(140px, 1fr));
+        gap: 12px;
+    }
+    
+    .product-card {
+        padding: 10px;
+        height: 300px;
+    }
+    
+    .product-image-container {
+        height: 140px;
+    }
+    
+    .btn-primary {
+        font-size: 14px;
+        padding: 8px;
     }
 }

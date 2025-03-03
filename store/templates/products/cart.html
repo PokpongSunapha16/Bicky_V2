@@ -1,8 +1,12 @@
+{% extends "base.html" %}
+{% load static %}
+{% block content %}
 <!DOCTYPE html>
 <html lang="th">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="stylesheet" href="{% static 'styles/products.css' %}">
     <title>ตะกร้าสินค้า</title>
 </head>
 <body>
@@ -36,3 +40,5 @@
     {% endif %}
 </body>
 </html>
+
+{% endblock %}

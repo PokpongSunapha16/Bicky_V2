@@ -1,4 +1,6 @@
+{% extends "base.html" %}
 {% load static %}
+{% block content %}
 <!DOCTYPE html>
 <html lang="th">
 <head>
@@ -92,8 +94,10 @@
             </tbody>
         </table>
 
-        <a href="{% url 'settings' %}" class="btn btn-secondary btn-lg mt-3">⬅️ กลับ</a>
+        <a href="{% url 'home' %}" class="btn btn-secondary btn-lg mt-3">⬅️ กลับ</a>
     </div>
 
 </body>
 </html>
+
+{% endblock %}

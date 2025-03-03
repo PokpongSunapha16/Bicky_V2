@@ -1,9 +1,13 @@
+{% extends "base.html" %}
+{% load static %}
+{% block content %}
 <!DOCTYPE html>
 <html lang="th">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>รายการคำสั่งซื้อ</title>
+    <link rel="stylesheet" href="{% static 'styles/products.css' %}">
 </head>
 <body>
     <h2>รายการคำสั่งซื้อ</h2>
@@ -35,3 +39,4 @@
     {% endif %}
 </body>
 </html>
+{% endblock %}

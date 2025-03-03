@@ -4,13 +4,84 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>{% block title %}TaskFlow{% endblock %}</title>
-    <link rel="stylesheet" type="text/css" href="{% static 'styles/home.css' %}">
+    <title>{% block title %}ระบบ POS{% endblock %}</title>
+    <link href="https://fonts.googleapis.com/css2?family=Prompt:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="{% static 'styles/base.css' %}">
+    {% block extra_css %}{% endblock %}
 </head>
 <body>
-    <div class="wrapper">
-        {% block content %}
-        {% endblock %}
+    <!-- Navbar -->
+    <header class="navbar">
+        <div class="navbar-left">
+            <a class="navbar-brand" href="{% url 'home' %}">
+                <span>✨</span>
+                <span>ระบบ POS</span>
+            </a>
+        </div>
+        <div class="navbar-right">
+            <button id="openSettings" class="btn-settings">⚙️ ตั้งค่า</button>
+            <a href="{% url 'cart_view' %}" class="btn-cart">🛒 ตะกร้าสินค้า</a>
+        </div>
+    </header>
+
+    <!-- Main Content -->
+    <main class="main-content">
+        {% block content %}{% endblock %}
+    </main>
+
+    <!-- Sidebar -->
+    <div class="settings-sidebar">
+        <div class="sidebar-header">
+            <h3>ตั้งค่าระบบ</h3>
+            <button id="closeSettings" class="btn-close">×</button>
+        </div>
+        
+        <div class="sidebar-content">
+            <div class="sidebar-section">
+                <h4>บัญชีของฉัน</h4>
+                <a href="{% url 'order_list' %}" class="sidebar-link">
+                    <span class="sidebar-icon">📋</span>
+                    <span>ประวัติการสั่งซื้อ</span>
+                </a>
+            </div>
+            
+            {% if request.user.is_authenticated and request.user.role != "customer" %}
+            <div class="sidebar-section">
+                <h4>การจัดการ</h4>
+                <a href="{% url 'dashboard' %}" class="sidebar-link">
+                    <span class="sidebar-icon">📊</span>
+                    <span>ไปที่ Dashboard</span>
+                </a>
+                <a href="{% url 'add_product' %}" class="sidebar-link">
+                    <span class="sidebar-icon">➕</span>
+                    <span>เพิ่มสินค้า</span>
+                </a>
+                <a href="{% url 'product_list' %}" class="sidebar-link">
+                    <span class="sidebar-icon">📦</span>
+                    <span>จัดการสินค้า</span>
+                </a>
+                <a href="{% url 'admin_payment_list' %}" class="sidebar-link">
+                    <span class="sidebar-icon">💰</span>
+                    <span>ตรวจสอบการชำระเงิน</span>
+                </a>
+            </div>
+            {% endif %}
+            
+            <form action="{% url 'logout' %}" method="post" class="sidebar-logout">
+                {% csrf_token %}
+                <button type="submit" class="sidebar-link logout-link">
+                    <span class="sidebar-icon">🚪</span>
+                    <span>ออกจากระบบ</span>
+                </button>
+            </form>
+        </div>
     </div>
+    
+    <!-- Overlay -->
+    <div class="sidebar-overlay"></div>
+
+    <!-- JavaScript -->
+    <script src="{% static 'js/sidebar.js' %}"></script>
+    {% block extra_js %}{% endblock %}
 </body>
 </html>

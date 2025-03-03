@@ -1,4 +1,6 @@
+
 {% load static %}
+{% block content %}
 <!DOCTYPE html>
 <html lang="th">
 <head>
@@ -6,32 +8,35 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>{% block title %}ร้านค้าออนไลน์{% endblock %}</title>
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css">
+    <link href="https://fonts.googleapis.com/css2?family=Prompt:wght@300;400;500;600;700&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="{% static 'styles/main.css' %}"> <!-- ✅ ใช้ไฟล์ CSS แยก -->
 </head>
 <body>
 
     <nav class="navbar navbar-expand-lg">
-        <a class="navbar-brand text-white fw-bold" href="{% url 'index' %}">🛒 ร้านค้าออนไลน์</a>
-        <div class="ms-auto">
-            <a href="{% url 'register' %}" class="btn btn-gradient me-2">📄 สมัครสมาชิก</a>
-            <a href="{% url 'login' %}" class="btn btn-gradient">🔑 เข้าสู่ระบบ</a>
+        <div class="container">
+            <a class="navbar-brand text-white fw-bold" href="{% url 'index' %}">✨ ร้านค้าออนไลน์</a>
+            <div class="ms-auto">
+                <a href="{% url 'register' %}" class="btn btn-gradient me-2">👤 สมัครสมาชิก</a>
+                <a href="{% url 'login' %}" class="btn btn-gradient">🔑 เข้าสู่ระบบ</a>
+            </div>
         </div>
     </nav>
     
-
     <!-- ✅ รายการสินค้า -->
     <div class="container">
-        <h2 class="text-center mt-4">📦 รายการสินค้า</h2>
-        <div class="row justify-content-center">
+        <h2 class="page-title">✨ รายการสินค้าแนะนำ</h2>
+        
+        <div class="product-container">
             {% for product in products %}
-            <div class="col-md-4 mb-4">
-                <div class="card text-center shadow-sm">
+            <div class="card">
+                <div class="product-img-container">
                     <img src="{% if product.image %}{{ product.image.url }}{% else %}{% static 'media/default.png' %}{% endif %}" class="product-img" alt="{{ product.name }}">
-                    <div class="card-body">
-                        <h5 class="card-title">📌 {{ product.name }}</h5>
-                        <p class="text-success">💰 ราคา : {{ product.price }} บาท</p>
-                        <button class="btn btn-disabled">🔒 กรุณาเข้าสู่ระบบเพื่อซื้อ</button>
-                    </div>
+                </div>
+                <div class="card-body">
+                    <h5 class="card-title">{{ product.name }}</h5>
+                    <p class="price-tag">💎 ราคา: {{ product.price }} บาท</p>
+                    <button class="btn btn-disabled">🔒 กรุณาเข้าสู่ระบบเพื่อซื้อ</button>
                 </div>
             </div>
             {% endfor %}
@@ -40,3 +45,4 @@
 
 </body>
 </html>
+{% endblock %}

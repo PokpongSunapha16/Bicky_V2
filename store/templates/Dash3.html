@@ -2,18 +2,18 @@
 <html>
 <head>
     <title>Dash in Django</title>
-
+    {% load static %}
+    {% load plotly_dash %}
+    <link rel="stylesheet" href="{% static 'styles/dash.css' %}">
 </head>
 <body>
-    <h1>Dash App</h1>
-    {% load plotly_dash %}
-    <div id="container_iframe">
-        {% plotly_app name="Dash3" ratio=2 %}
-        <style>
-            #container_iframe div{
-                height: 100%!important  ;
-            }
-        </style>
+    <div class="container">
+        <header>
+            <h1>Dash App</h1>
+        </header>
+        <div id="container_iframe">
+            {% plotly_app name="Dash3" ratio=2 %}
+        </div>
     </div>
 </body>
 </html>

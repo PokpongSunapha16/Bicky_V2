@@ -1,4 +1,6 @@
+{% extends "base.html" %}
 {% load static %}
+{% block content %}
 <!DOCTYPE html>
 <html lang="th">
 <head>
@@ -6,45 +8,81 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>ระบบ POS</title>
     
-    <!-- ✅ เรียกใช้ Bootstrap เพื่อช่วยจัด Layout -->
-    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css">
-    <link rel="stylesheet" href="{% static 'styles/home1.css' %}"> <!-- ✅ ใช้ CSS แยกไฟล์ -->
+    <!-- <link href="https://fonts.googleapis.com/css2?family=Prompt:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css"> -->
+    <link rel="stylesheet" href="{% static 'styles/product-home1.css'%}">
 </head>
 <body>
 
-    <!-- ✅ Navbar -->
-    <header class="navbar navbar-expand-lg navbar-dark bg-success p-3">
-        <a class="navbar-brand text-white" href="{% url 'home' %}">🛒 ระบบ POS</a>
-        <div class="ms-auto">
-            <a href="{% url 'settings' %}" class="btn btn-light me-2">⚙️ เมนู</a>
-            <a href="{% url 'cart_view' %}" class="btn btn-warning">🛒 ตะกร้าสินค้า</a>
+    <!-- Navbar ปรับปรุง -->
+    <!-- <header class="navbar navbar-expand-lg navbar-dark p-3">
+        <div class="container">
+            <a class="navbar-brand" href="{% url 'home' %}">✨ ระบบ POS</a>
+            <div class="ms-auto d-flex gap-2">
+                <a href="{% url 'settings' %}" class="btn btn-light">⚙️ เมนู</a>
+                <a href="{% url 'cart_view' %}" class="btn btn-primary">🛒 ตะกร้าสินค้า</a>
+            </div>
         </div>
-    </header>
+    </header> -->
 
-    <!-- ✅ Main Content -->
-    <div class="container mt-4">
-        <h3 class="text-center">เลือกสินค้า</h3>
+    <!-- Main Content -->
+    <div class="container mt-3">
+        <h3 class="text-center">✨ เลือกสินค้า</h3>
 
-        <!-- ✅ รายการสินค้า -->
+        <!-- ช่องค้นหาและตัวกรอง -->
+        <div class="search-filter-container">
+            <div class="search-box">
+                <input type="text" class="search-input" placeholder="🔍 ค้นหาสินค้า..." id="searchInput">
+                <select class="form-select ms-3" id="sortSelect">
+                    <option value="name">เรียงตามชื่อ</option>
+                    <option value="price_asc">ราคาน้อยไปมาก</option>
+                    <option value="price_desc">ราคามากไปน้อย</option>
+                    <option value="newest">สินค้าใหม่ล่าสุด</option>
+                </select>
+            </div>
+            
+            <!-- แสดงหมวดหมู่ตามภาพที่ 2 -->
+            <div class="category-container">
+                <div class="category-title mb-2">หมวดหมู่:</div>
+                <div class="category-list">
+                    <button class="category-btn active" data-category="all">ทั้งหมด</button>
+                    <button class="category-btn" data-category="electronics">อิเล็กทรอนิกส์</button>
+                    <button class="category-btn" data-category="clothing">เสื้อผ้า</button>
+                    <button class="category-btn" data-category="accessories">อุปกรณ์เสริม</button>
+                    <button class="category-btn" data-category="home_appliances">เครื่องใช้ไฟฟ้าภายในบ้าน</button>
+                    <button class="category-btn" data-category="books">หนังสือ</button>
+                    <button class="category-btn" data-category="others">อื่นๆ</button>
+                </div>
+            </div>
+        </div>
+
+        <!-- รายการสินค้า -->
         <div class="product-grid">
             {% for product in products %}
-            <div class="product-card">
-                <img src="{% if product.image %}{{ product.image.url }}{% else %}{% static 'media/default.png' %}{% endif %}" alt="{{ product.name }}">
-                <h3>{{ product.name }}</h3>
-                <p>฿{{ product.price }}</p>
-                {% if request.user.is_authenticated and request.user.role != "admin" %}
-                <!-- ✅ Form เพิ่มสินค้าลงตะกร้า -->
-                <form action="{% url 'add_to_cart' product.id %}" method="post">
-                    {% csrf_token %}
-                    <button type="submit" class="btn btn-primary w-100">➕ เพิ่มลงตะกร้า</button>
-                </form>
-                {% endif %}
+            <div class="product-card" data-category="{{ product.category }}">
+                <div class="product-image-container">
+                    <img src="{% if product.image %}{{ product.image.url }}{% else %}{% static 'media/default.png' %}{% endif %}" alt="{{ product.name }}">
+                </div>
+                <div class="product-info">
+                    <h3 class="product-title">{{ product.name }}</h3>
+                    <div class="product-price">💎 ฿{{ product.price }}</div>
+                    {% if request.user.is_authenticated and request.user.role != "admin" %}
+                    <div class="product-actions">
+                        <form action="{% url 'add_to_cart' product.id %}" method="post">
+                            {% csrf_token %}
+                            <button type="submit" class="btn btn-primary">➕ เพิ่มลงตะกร้า</button>
+                        </form>
+                    </div>
+                    {% endif %}
+                </div>
             </div>
             {% endfor %}
         </div>
     </div>
 
-    <!-- ✅ JavaScript -->
+    <!-- JavaScript -->
     <script src="{% static 'js/pos.js' %}"></script>
+    <script src="{% static 'js/product-filter.js' %}"></script>
 </body>
 </html>
+{% endblock %}
