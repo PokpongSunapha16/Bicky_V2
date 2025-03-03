@@ -46,3 +46,5 @@ class PaymentSlipForm(forms.ModelForm):
     class Meta:
         model = Order
         fields = ['payment_slip']  # ให้สามารถอัปโหลดสลิปได้
+
+

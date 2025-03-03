@@ -10,6 +10,11 @@ urlpatterns = [
     path("home/", home_view, name="home"),  # ✅ หน้า home หลัง login
     path("logout/", logout_view, name="logout"),  # ✅ Logout แล้วกลับไป indeX
     path("register/", register_view, name="register"),
+
+    path("register/", register_view, name="register"),
+    path("register/admin/", admin_register_view, name="admin_register"),  # ✅ ตรวจสอบ URL
+
+
     path("login/", login_view, name="login"),
 
    # ✅ ระบบจัดการสินค้า
