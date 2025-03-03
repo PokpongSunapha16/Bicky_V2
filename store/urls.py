@@ -50,14 +50,12 @@ urlpatterns = [
     path('reject-order/<int:order_id>/', views.reject_order, name='reject_order'),  # ✅ URL สำหรับปุ่มไม่อนุมัติ
 
 
-            path('dash/', Dash1, name='DashHome'),
-            path('2', Dash2, name='Dash2'),
-            path('3', Dash3, name='Dash2'),
+    path('dash/', Dash1, name='DashHome'),
+    path('2', Dash2, name='Dash2'),
+    path('3', Dash3, name='Dash2'),
 
 
 ]
-
-urlpatterns += static(settings.STATIC_URL, document_root=settings.STATIC_ROOT)
 
 
 

@@ -32,12 +32,13 @@
                 <img src="{% if product.image %}{{ product.image.url }}{% else %}{% static 'media/default.png' %}{% endif %}" alt="{{ product.name }}">
                 <h3>{{ product.name }}</h3>
                 <p>฿{{ product.price }}</p>
-
+                {% if request.user.is_authenticated and request.user.role != "admin" %}
                 <!-- ✅ Form เพิ่มสินค้าลงตะกร้า -->
                 <form action="{% url 'add_to_cart' product.id %}" method="post">
                     {% csrf_token %}
                     <button type="submit" class="btn btn-primary w-100">➕ เพิ่มลงตะกร้า</button>
                 </form>
+                {% endif %}
             </div>
             {% endfor %}
         </div>
