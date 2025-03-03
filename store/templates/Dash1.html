@@ -1,0 +1,31 @@
+{% extends "base.html" %}
+
+{% load plotly_dash %}  <!-- Load the plotly_dash tag library -->
+
+{% block title %}Dash App{% endblock %}
+
+{% block content %}
+<head>
+    <title>Dash in Django</title>
+    {% load plotly_dash %}
+    {% plotly_header %}
+    <script src="https://cdn.tailwindcss.com"></script>
+    <style>
+        #container_iframe div{
+            height: 5%!important  ;
+        }
+    </style>
+</head>
+<div>
+    <h1>Dash App</h1>
+    <div style="height: 100%">
+        {% plotly_app name="AnimeDashboard" ratio=1.171%}
+        <div class="mx-auto">
+            <a href="{% url 'purchase_history' %}" class="px-6 py-3 text-white bg-blue-500 rounded-lg shadow-md hover:bg-blue-600">
+                📜 ดูประวัติการสั่งซื้อ
+            </a>
+        </div>
+        {% plotly_footer %}
+    </div>
+</div>
+{% endblock %}

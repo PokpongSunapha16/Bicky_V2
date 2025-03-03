@@ -1,0 +1,21 @@
+- model: store.product
+  pk: 1
+  fields:
+    seller: 1
+    name: "iPhone 14 Pro"
+    description: "สมาร์ทโฟนรุ่นใหม่ล่าสุดจาก Apple"
+    price: 42000
+    stock: 10
+    category: "electronics"
+    created_at: "2024-03-01T10:00:00Z"  # ✅ เพิ่มฟิลด์ created_at
+
+- model: store.product
+  pk: 2
+  fields:
+    seller: 1
+    name: "MacBook Air M2"
+    description: "แล็ปท็อปน้ำหนักเบา ใช้ชิป M2"
+    price: 48000
+    stock: 5
+    category: "electronics"
+    created_at: "2024-03-02T12:30:00Z"  # ✅ เพิ่มฟิลด์ created_at

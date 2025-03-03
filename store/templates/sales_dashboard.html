@@ -1,0 +1,44 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Sales Dashboard</title>
+    <script src="https://cdn.plot.ly/plotly-latest.min.js"></script>
+</head>
+<body>
+    <div id="mainPlot"></div>
+    <div id="secondaryPlot1"></div>
+    <div id="secondaryPlot2"></div>
+
+    <script>
+        // Parse the data passed from Django
+        const chartData = JSON.parse('{{ chart_data|safe }}');
+
+        // Main Plot
+        Plotly.newPlot('mainPlot', [{
+            x: chartData.mainPlot.x,
+            y: chartData.mainPlot.y,
+            type: 'bar'
+        }], {
+            title: 'Monthly Sales'
+        });
+
+        // Secondary Plot 1
+        Plotly.newPlot('secondaryPlot1', [{
+            labels: chartData.secondaryPlot1.x,
+            values: chartData.secondaryPlot1.y,
+            type: 'pie'
+        }], {
+            title: 'Sales by Category'
+        });
+
+        // Secondary Plot 2
+        Plotly.newPlot('secondaryPlot2', [{
+            x: chartData.secondaryPlot2.labels,
+            y: chartData.secondaryPlot2.values,
+            type: 'bar'
+        }], {
+            title: 'Sales Distribution'
+        });
+    </script>
+</body>
+</html>

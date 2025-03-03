@@ -2,6 +2,9 @@ from django.urls import path
 from .views import *
 from . import views
 
+from django.conf.urls.static import static
+from django.conf import settings
+
 urlpatterns = [
     path("", index_view, name="index"),  # ✅ หน้าแรกคือ index.html
     path("home/", home_view, name="home"),  # ✅ หน้า home หลัง login
@@ -42,9 +45,14 @@ urlpatterns = [
     path('reject-order/<int:order_id>/', views.reject_order, name='reject_order'),  # ✅ URL สำหรับปุ่มไม่อนุมัติ
 
 
+            path('dash/', Dash1, name='DashHome'),
+            path('2', Dash2, name='Dash2'),
+            path('3', Dash3, name='Dash2'),
 
 
 ]
+
+urlpatterns += static(settings.STATIC_URL, document_root=settings.STATIC_ROOT)
 
 
 

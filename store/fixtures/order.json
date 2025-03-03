@@ -1,0 +1,29 @@
+[
+    {
+        "model": "store.orderitem",
+        "pk": 1,
+        "fields": {
+            "order": 1,
+            "product": 1,
+            "quantity": 3
+        }
+    },
+    {
+        "model": "store.orderitem",
+        "pk": 2,
+        "fields": {
+            "order": 2,
+            "product": 2,
+            "quantity": 2
+        }
+    },
+    {
+        "model": "store.orderitem",
+        "pk": 3,
+        "fields": {
+            "order": 3,
+            "product": 3,
+            "quantity": 4
+        }
+    }
+]

@@ -1,0 +1,15 @@
+- model: store.customuser
+  pk: 1
+  fields:
+    username: "seller1"
+    email: "seller1@example.com"
+    role: "admin"
+    password: "pbkdf2_sha256$260000$randomsalt$saltedhash"
+
+- model: store.customuser
+  pk: 2
+  fields:
+    username: "customer1"
+    email: "customer1@example.com"
+    role: "customer"
+    password: "pbkdf2_sha256$260000$randomsalt$saltedhash"

@@ -1,0 +1,26 @@
+[
+    {
+        "model": "store.product",
+        "pk": 1,
+        "fields": {
+            "name": "iPhone 14 Pro",
+            "price": 42000
+        }
+    },
+    {
+        "model": "store.product",
+        "pk": 2,
+        "fields": {
+            "name": "MacBook Air M2",
+            "price": 48000
+        }
+    },
+    {
+        "model": "store.product",
+        "pk": 3,
+        "fields": {
+            "name": "PlayStation 5",
+            "price": 23000
+        }
+    }
+]

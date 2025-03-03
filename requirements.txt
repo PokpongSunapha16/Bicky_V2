@@ -4,3 +4,10 @@ pandas
 matplotlib
 mysqlclient
 seaborn
+pillow
+django_plotly_dash
+dpd_static_support
+dash_mantine_components
+pymysql
+pyyaml
+scikit-learn

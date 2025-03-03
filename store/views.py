@@ -699,3 +699,21 @@ def reject_order(request, order_id):
     messages.error(request, f"❌ คำสั่งซื้อ #{order.id} ถูกปฏิเสธแล้ว!")
 
     return redirect('admin_payment_list')  # ✅ กลับไปที่หน้าตรวจสอบการชำระเงิน
+
+from django.shortcuts import render
+#from .dash_app1 import app
+import store.dash_app1
+
+
+def dash_view(request):
+    return render(request, "dashboard.html")
+
+
+def Dash1(req):
+    return render(req, "Dash1.html")
+
+def Dash2(req):
+    return render(req, "Dash2.html")
+
+def Dash3(req):
+    return render(req, "Dash3.html")

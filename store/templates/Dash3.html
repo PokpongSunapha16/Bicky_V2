@@ -1,0 +1,19 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Dash in Django</title>
+
+</head>
+<body>
+    <h1>Dash App</h1>
+    {% load plotly_dash %}
+    <div id="container_iframe">
+        {% plotly_app name="Dash3" ratio=2 %}
+        <style>
+            #container_iframe div{
+                height: 100%!important  ;
+            }
+        </style>
+    </div>
+</body>
+</html>
