@@ -55,6 +55,7 @@ def register_view(request):
     return render(request, "login/register.html", {"form": form})
 
 
+
 def login_view(request):
     if request.method == "POST":
         username = request.POST.get("username", "").strip()
@@ -423,7 +424,7 @@ def admin_register_view(request):
         if form.is_valid():
             user = form.save()
             login(request, user)
-            return redirect("admin_dashboard")
+            return redirect("home")
         else:
             messages.error(request, "❌ กรุณาตรวจสอบข้อมูลที่กรอก!")
     else:
