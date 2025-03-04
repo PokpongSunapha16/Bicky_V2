@@ -1,3 +1,6 @@
+{% extends "base.html" %}
+{% load static %}
+{% block content %}
 {% load plotly_dash %}
 
 <!DOCTYPE html>
@@ -6,11 +9,25 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Sales Dashboard</title>
+    <style>
+        .dash-container {
+            width: 100%;
+            height: 100vh;  /* ✅ ทำให้เต็มหน้าจอ */
+            overflow: hidden;  /* ✅ ป้องกัน scroll bar */
+        }
+    </style>
 </head>
 <body>
     <h1>📊 Sales Dashboard</h1>
+
+    <!-- ✅ ฝัง Dash App -->
+    <div class="dash-container">
+        <iframe src="/django_plotly_dash/app/DashboardApp/" 
+            style="width: 100%; height: 100vh; border: none;">
+        </iframe>
+    </div>
     
-    <!-- ✅ แสดง Dash App -->
-    {% plotly_app name="DashboardApp" %}
+    
 </body>
 </html>
+{% endblock %}

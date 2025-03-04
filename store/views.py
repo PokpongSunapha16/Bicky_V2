@@ -468,36 +468,21 @@ def admin_logout(request):
     logout(request)
     return redirect("admin_login")
 
-from django.contrib.auth.decorators import login_required
-from django.shortcuts import render, redirect, get_object_or_404
-from .models import CustomUser, Product, Order
-# ✅ ฟังก์ชันแสดงรายการสินค้า Admin
-from django.shortcuts import render
-from django.contrib.auth.decorators import login_required
-from .models import Order, Product, CustomUser
-import json
-
-# ✅ ฟังก์ชันช่วยแปลง Decimal เป็น float
-def decimal_to_float(obj):
-    if isinstance(obj, Decimal):
-        return float(obj)  # ✅ แปลง Decimal เป็น float
-    raise TypeError
-
-from django.shortcuts import render
-from django.contrib.auth.decorators import login_required, user_passes_test
-from store.models import Order, OrderItem, Product, StorePayment
-from django.db.models import Sum, Count
 import pandas as pd
 import plotly.express as px
-from dash import dcc, html
+from dash import dcc, html, dash_table
 from dash.dependencies import Input, Output
 from django_plotly_dash import DjangoDash
+from django.db.models import Sum, Avg, Count
+from store.models import Order, OrderItem, Product
+from django.contrib.auth.decorators import login_required, user_passes_test
+from django.shortcuts import render
 
 # ✅ ตรวจสอบว่าเป็น Admin หรือไม่
 def is_admin(user):
     return user.is_authenticated and user.role == "admin"
 
-# ✅ Django View ที่ใช้แสดง Dash ใน Template
+# ✅ Django View สำหรับ Dashboard
 @login_required
 @user_passes_test(is_admin, login_url="home")
 def dashboard_view(request):
@@ -508,11 +493,23 @@ app = DjangoDash("DashboardApp")
 
 # ✅ ฟังก์ชันดึงข้อมูล Order
 def get_order_data():
-    # ✅ Order Status Distribution
-    order_status_data = Order.objects.values("status").annotate(total=Count("id"))
-    df_order_status = pd.DataFrame(order_status_data)
+    # ✅ หมวดหมู่สินค้ายอดนิยม
+    category_popularity = (
+        OrderItem.objects.values("product__category")
+        .annotate(total_sold=Sum("quantity"))
+        .order_by("-total_sold")
+    )
+    df_category_popularity = pd.DataFrame(category_popularity)
 
-    # ✅ Sales Trend Over Time
+    # ✅ ราคาขายเฉลี่ยต่อหมวดหมู่
+    category_avg_price = (
+        OrderItem.objects.values("product__category")
+        .annotate(avg_price=Avg("price"))
+        .order_by("-avg_price")
+    )
+    df_category_avg_price = pd.DataFrame(category_avg_price)
+
+    # ✅ แนวโน้มยอดขายตามช่วงเวลา
     sales_data = (
         Order.objects.filter(status="completed")
         .values("created_at")
@@ -520,62 +517,117 @@ def get_order_data():
         .order_by("created_at")
     )
     df_sales = pd.DataFrame(sales_data)
-    if not df_sales.empty:
-        df_sales["created_at"] = pd.to_datetime(df_sales["created_at"]).dt.strftime("%Y-%m-%d")
-        df_sales["total_sales"] = df_sales["total_sales"].astype(float)
+    if "created_at" in df_sales.columns:
+        df_sales["created_at"] = pd.to_datetime(df_sales["created_at"]).dt.strftime('%Y-%m-%d %H:%M')
 
-    # ✅ Top 5 Best-Selling Products
+    # ✅ สินค้าขายดี
     top_products = (
         OrderItem.objects.values("product__name")
         .annotate(total_sold=Sum("quantity"))
-        .order_by("-total_sold")[:5]
+        .order_by("-total_sold")
     )
     df_top_products = pd.DataFrame(top_products)
 
-    # ✅ Payment Method Distribution
-    payment_data = StorePayment.objects.values("payment_method").annotate(total=Count("id"))
-    df_payment = pd.DataFrame(payment_data)
+    # ✅ จำนวนสินค้าในสต็อก
+    stock_data = Product.objects.values("name", "stock")
+    df_stock = pd.DataFrame(stock_data)
 
-    return df_order_status, df_sales, df_top_products, df_payment
+    # ✅ จำนวนคำสั่งซื้อของลูกค้าแต่ละคน
+    customer_order_count = (
+        Order.objects.values("customer__username")
+        .annotate(order_count=Count("id"))
+        .order_by("-order_count")
+    )
+    df_customer_orders = pd.DataFrame(customer_order_count)
+
+    # ✅ ข้อมูลคำสั่งซื้อ
+    order_data = (
+        OrderItem.objects.values(
+            "order__customer__username",  
+            "product__name",
+            "product__category",
+            "order__created_at",
+            "quantity",
+            "price",
+        )
+        .order_by("-order__created_at")
+    )
+    df_orders = pd.DataFrame(order_data)
+    if "order__created_at" in df_orders.columns:
+        df_orders["order__created_at"] = pd.to_datetime(df_orders["order__created_at"]).dt.strftime('%Y-%m-%d %H:%M')
+
+    # ✅ ยอดขายรวมทั้งหมด
+    total_sales = Order.objects.filter(status="completed").aggregate(Sum("total_amount"))["total_amount__sum"] or 0
+
+    return df_category_popularity, df_category_avg_price, df_sales, df_top_products, df_stock, df_customer_orders, total_sales, df_orders
 
 # ✅ Layout ของ Dash
 app.layout = html.Div([
     html.H1("📊 Sales Dashboard", style={'textAlign': 'center'}),
 
     html.Div([
-        dcc.Graph(id="order_status_chart"),  # 📊 Order Status Distribution (Pie Chart)
-        dcc.Graph(id="sales_trend_chart"),  # 📈 Sales Trend Over Time (Line Chart)
-        dcc.Graph(id="top_products_chart"),  # 🏆 Top 5 Best-Selling Products (Bar Chart)
-        dcc.Graph(id="payment_chart"),  # 💳 Payment Method Distribution (Pie Chart)
-    ], className="graphs-container"),
+        html.H2("💰 ยอดขายรวม: ฿{:,.2f}".format(0), id="total_sales",
+                style={"textAlign": "center", "fontSize": "24px", "fontWeight": "bold"})
+    ], style={"margin": "20px"}),
 
-    html.Button("Reload Data", id="reload_button", n_clicks=0),
+    html.Div([
+        dcc.Graph(id="category_popularity_chart"),
+        dcc.Graph(id="category_avg_price_chart"),
+        dcc.Graph(id="sales_trend_chart"),
+        dcc.Graph(id="top_products_chart"),
+        dcc.Graph(id="customer_orders_chart"),
+        dcc.Graph(id="stock_chart"),
+    ], style={"display": "grid", "grid-template-columns": "repeat(2, 1fr)", "gap": "20px"}),
+
+    html.H3("🛒 รายการสั่งซื้อ"),
+    html.Div(id="order_table"),
+
+    html.Button("Reload Data", id="reload_button", n_clicks=0,
+                style={"margin": "20px", "padding": "10px", "fontSize": "16px"})
 ])
 
 # ✅ Callback อัปเดตข้อมูล
 @app.callback(
-    [Output("order_status_chart", "figure"),
+    [Output("total_sales", "children"),
+     Output("category_popularity_chart", "figure"),
+     Output("category_avg_price_chart", "figure"),
      Output("sales_trend_chart", "figure"),
      Output("top_products_chart", "figure"),
-     Output("payment_chart", "figure")],
+     Output("customer_orders_chart", "figure"),
+     Output("stock_chart", "figure"),
+     Output("order_table", "children")],
     [Input("reload_button", "n_clicks")]
 )
 def update_dashboard(n_clicks):
-    df_order_status, df_sales, df_top_products, df_payment = get_order_data()
+    df_category_popularity, df_category_avg_price, df_sales, df_top_products, df_stock, df_customer_orders, total_sales, df_orders = get_order_data()
 
-    # ✅ Order Status Distribution (Pie Chart)
-    fig_order_status = px.pie(df_order_status, names="status", values="total", title="📊 Order Status Distribution")
+    total_sales_display = f"💰 ยอดขายรวม: ฿{total_sales:,.2f}"
 
-    # ✅ Sales Trend Over Time (Line Chart)
-    fig_sales_trend = px.line(df_sales, x="created_at", y="total_sales", title="📈 Sales Trend Over Time", markers=True)
+    fig_category_popularity = px.bar(df_category_popularity, x="product__category", y="total_sold",
+                                     title="🏷️ Popular Product Categories", text_auto=True)
+    fig_category_popularity.update_layout(xaxis=dict(tickangle=-45))  # ปรับมุมของแกน X
 
-    # ✅ Top 5 Best-Selling Products (Bar Chart)
-    fig_top_products = px.bar(df_top_products, x="product__name", y="total_sold", title="🏆 Top 5 Best-Selling Products")
+    fig_category_avg_price = px.bar(df_category_avg_price, x="product__category", y="avg_price",
+                                    title="💰 Average Price per Category", text_auto=True)
 
-    # ✅ Payment Method Distribution (Pie Chart)
-    fig_payment = px.pie(df_payment, names="payment_method", values="total", title="💳 Payment Method Distribution")
+    fig_sales_trend = px.line(df_sales, x="created_at", y="total_sales",
+                              title="📈 Sales Trend Over Time", markers=True)
 
-    return fig_order_status, fig_sales_trend, fig_top_products, fig_payment
+    fig_top_products = px.bar(df_top_products, x="product__name", y="total_sold",
+                              title="🏆 Top Selling Products", text_auto=True)
+    fig_top_products.update_layout(xaxis=dict(tickangle=-45))  # ปรับมุมของแกน X
+
+    fig_customer_orders = px.bar(df_customer_orders, x="customer__username", y="order_count",
+                                 title="🛍️ Customer Order Count", text_auto=True)
+
+    fig_stock = px.bar(df_stock, x="name", y="stock",
+                       title="📦 Stock Level", text_auto=True)
+    fig_stock.update_layout(xaxis=dict(tickangle=-45))  # ปรับมุมของแกน X
+
+    order_table = dash_table.DataTable(columns=[{"name": col, "id": col} for col in df_orders.columns],
+                                       data=df_orders.to_dict("records"))
+
+    return total_sales_display, fig_category_popularity, fig_category_avg_price, fig_sales_trend, fig_top_products, fig_customer_orders, fig_stock, order_table
 
 
 
@@ -630,113 +682,113 @@ def create_chart(figure):
     return base64.b64encode(image_png).decode('utf-8')
 
 # ✅ Function to generate the dashboard
-def dashboard_view(request):
-    try:
-        # ✅ 1. Pie Chart - Product Category Distribution
-        category_counts = Product.objects.values("category").annotate(total=Count("id"))
-        pie_chart = None
-        bar_chart = None
-        price_histogram = None
-        sales_trend_chart = None
-        top_products_chart = None
-        payment_chart = None
+# def dashboard_view(request):
+#     try:
+#         # ✅ 1. Pie Chart - Product Category Distribution
+#         category_counts = Product.objects.values("category").annotate(total=Count("id"))
+#         pie_chart = None
+#         bar_chart = None
+#         price_histogram = None
+#         sales_trend_chart = None
+#         top_products_chart = None
+#         payment_chart = None
         
-        if category_counts:
-            df_category = pd.DataFrame(category_counts)
-            fig1, ax1 = plt.subplots(figsize=(6, 6))
-            ax1.pie(df_category["total"], labels=df_category["category"], autopct="%1.1f%%", startangle=140)
-            plt.title("📊 Product Category Distribution")
-            pie_chart = create_chart(fig1)
-        else:
-            pie_chart = None
+#         if category_counts:
+#             df_category = pd.DataFrame(category_counts)
+#             fig1, ax1 = plt.subplots(figsize=(6, 6))
+#             ax1.pie(df_category["total"], labels=df_category["category"], autopct="%1.1f%%", startangle=140)
+#             plt.title("📊 Product Category Distribution")
+#             pie_chart = create_chart(fig1)
+#         else:
+#             pie_chart = None
 
-        # ✅ 2. Bar Chart - Number of Products by Category
-        if category_counts:
-            fig2, ax2 = plt.subplots(figsize=(8, 5))
-            ax2.bar(df_category["category"], df_category["total"], color="skyblue")
-            plt.title("📦 Product Count by Category")
-            plt.xticks(rotation=45)
-            bar_chart = create_chart(fig2)
-        else:
-            bar_chart = None
+#         # ✅ 2. Bar Chart - Number of Products by Category
+#         if category_counts:
+#             fig2, ax2 = plt.subplots(figsize=(8, 5))
+#             ax2.bar(df_category["category"], df_category["total"], color="skyblue")
+#             plt.title("📦 Product Count by Category")
+#             plt.xticks(rotation=45)
+#             bar_chart = create_chart(fig2)
+#         else:
+#             bar_chart = None
 
-        # ✅ 3. Histogram - Product Price Distribution
-        product_prices = list(Product.objects.values_list("price", flat=True))
-        if product_prices:
-            fig3, ax3 = plt.subplots(figsize=(10, 6))
-            sns.histplot(product_prices, bins=10, kde=True, color="green", ax=ax3)
-            ax3.set_xlabel("Price (THB)")
-            ax3.set_ylabel("Number of Products")
-            ax3.set_title("💰 Product Price Distribution")
-            price_histogram = create_chart(fig3)
-        else:
-            price_histogram = None
+#         # ✅ 3. Histogram - Product Price Distribution
+#         product_prices = list(Product.objects.values_list("price", flat=True))
+#         if product_prices:
+#             fig3, ax3 = plt.subplots(figsize=(10, 6))
+#             sns.histplot(product_prices, bins=10, kde=True, color="green", ax=ax3)
+#             ax3.set_xlabel("Price (THB)")
+#             ax3.set_ylabel("Number of Products")
+#             ax3.set_title("💰 Product Price Distribution")
+#             price_histogram = create_chart(fig3)
+#         else:
+#             price_histogram = None
 
-        # ✅ 4. Line Chart - Sales Trend Over Time
-        sales_data = (
-            Order.objects.filter(status="delivered")
-            .annotate(sale_date=TruncDate("created_at"))  # ✅ Use TruncDate to extract the date
-            .values("sale_date")
-            .annotate(total_sales=Sum("total_amount"))
-            .order_by("sale_date")
-        )
+#         # ✅ 4. Line Chart - Sales Trend Over Time
+#         sales_data = (
+#             Order.objects.filter(status="delivered")
+#             .annotate(sale_date=TruncDate("created_at"))  # ✅ Use TruncDate to extract the date
+#             .values("sale_date")
+#             .annotate(total_sales=Sum("total_amount"))
+#             .order_by("sale_date")
+#         )
 
-        if sales_data:
-            df_sales = pd.DataFrame(sales_data)
-            fig4, ax4 = plt.subplots(figsize=(10, 6))
-            ax4.plot(df_sales["sale_date"], df_sales["total_sales"], marker="o", linestyle="-", color="red")
-            ax4.set_xlabel("Date")
-            ax4.set_ylabel("Total Sales (THB)")
-            ax4.set_title("📈 Daily Sales Trend")
-            ax4.grid(True)
-            sales_trend_chart = create_chart(fig4)
-        else:
-            sales_trend_chart = None
+#         if sales_data:
+#             df_sales = pd.DataFrame(sales_data)
+#             fig4, ax4 = plt.subplots(figsize=(10, 6))
+#             ax4.plot(df_sales["sale_date"], df_sales["total_sales"], marker="o", linestyle="-", color="red")
+#             ax4.set_xlabel("Date")
+#             ax4.set_ylabel("Total Sales (THB)")
+#             ax4.set_title("📈 Daily Sales Trend")
+#             ax4.grid(True)
+#             sales_trend_chart = create_chart(fig4)
+#         else:
+#             sales_trend_chart = None
 
-        # ✅ 5. Bar Chart - Top 5 Best-Selling Products
-        top_products = (
-            OrderItem.objects.values("product__name")
-            .annotate(total_sold=Sum("quantity"))
-            .order_by("-total_sold")[:5]
-        )
+#         # ✅ 5. Bar Chart - Top 5 Best-Selling Products
+#         top_products = (
+#             OrderItem.objects.values("product__name")
+#             .annotate(total_sold=Sum("quantity"))
+#             .order_by("-total_sold")[:5]
+#         )
 
-        if top_products:
-            df_top_products = pd.DataFrame(top_products)
-            fig5, ax5 = plt.subplots(figsize=(10, 6))
-            ax5.bar(df_top_products["product__name"], df_top_products["total_sold"], color="orange")
-            ax5.set_xlabel("Product")
-            ax5.set_ylabel("Units Sold")
-            ax5.set_title("🏆 Top 5 Best-Selling Products")
-            plt.xticks(rotation=45)
-            top_products_chart = create_chart(fig5)
-        else:
-            top_products_chart = None
+#         if top_products:
+#             df_top_products = pd.DataFrame(top_products)
+#             fig5, ax5 = plt.subplots(figsize=(10, 6))
+#             ax5.bar(df_top_products["product__name"], df_top_products["total_sold"], color="orange")
+#             ax5.set_xlabel("Product")
+#             ax5.set_ylabel("Units Sold")
+#             ax5.set_title("🏆 Top 5 Best-Selling Products")
+#             plt.xticks(rotation=45)
+#             top_products_chart = create_chart(fig5)
+#         else:
+#             top_products_chart = None
 
-        # ✅ 6. Pie Chart - Payment Method Distribution
-        payment_data = StorePayment.objects.values("payment_method").annotate(total=Count("id"))
-        if payment_data:
-            df_payment = pd.DataFrame(payment_data)
-            fig6, ax6 = plt.subplots(figsize=(6, 6))
-            ax6.pie(df_payment["total"], labels=df_payment["payment_method"], autopct="%1.1f%%", startangle=140)
-            plt.title("💳 Payment Method Distribution")
-            payment_chart = create_chart(fig6)
-        else:
-            payment_chart = None
+#         # ✅ 6. Pie Chart - Payment Method Distribution
+#         payment_data = StorePayment.objects.values("payment_method").annotate(total=Count("id"))
+#         if payment_data:
+#             df_payment = pd.DataFrame(payment_data)
+#             fig6, ax6 = plt.subplots(figsize=(6, 6))
+#             ax6.pie(df_payment["total"], labels=df_payment["payment_method"], autopct="%1.1f%%", startangle=140)
+#             plt.title("💳 Payment Method Distribution")
+#             payment_chart = create_chart(fig6)
+#         else:
+#             payment_chart = None
 
-        # ✅ Send Charts to Template
-        return render(request, "dashboard.html", {
-            "pie_chart": pie_chart,
-            "bar_chart": bar_chart,
-            "price_histogram": price_histogram,
-            "sales_trend_chart": sales_trend_chart,
-            "top_products_chart": top_products_chart,
-            "payment_chart": payment_chart
-        })
+#         # ✅ Send Charts to Template
+#         return render(request, "dashboard.html", {
+#             "pie_chart": pie_chart,
+#             "bar_chart": bar_chart,
+#             "price_histogram": price_histogram,
+#             "sales_trend_chart": sales_trend_chart,
+#             "top_products_chart": top_products_chart,
+#             "payment_chart": payment_chart
+#         })
 
-    except Exception as e:
-        return HttpResponse(f"An error occurred: {str(e)}")
-def is_admin(user):
-    return user.is_authenticated and user.role == "admin"
+#     except Exception as e:
+#         return HttpResponse(f"An error occurred: {str(e)}")
+# def is_admin(user):
+#     return user.is_authenticated and user.role == "admin"
 
 @login_required
 @user_passes_test(is_admin)

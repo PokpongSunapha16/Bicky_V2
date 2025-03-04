@@ -6,9 +6,9 @@ mysqlclient
 seaborn
 pillow
 #django_plotly_dash 
-Django==4.2.11 --no-cache-dir
-dash==2.10.2 --no-cache-dir
-django-plotly-dash --no-cache-dir
+# Django==4.2.11 --no-cache-dir
+# dash==2.10.2 --no-cache-dir
+# django-plotly-dash --no-cache-dir
 dpd_static_support
 dash_mantine_components
 pymysql

@@ -95,12 +95,21 @@ class Order(models.Model):
 # ✅ Order Items Model
 class OrderItem(models.Model):
     order = models.ForeignKey(Order, on_delete=models.CASCADE, related_name="order_items")  # ✅ ต้องมี related_name
-    product = models.ForeignKey(Product, on_delete=models.CASCADE)
+    product = models.ForeignKey(Product, on_delete=models.SET_NULL, null=True, blank=True)  # ✅ เผื่อกรณีสินค้าถูกลบ
+    product_name = models.CharField(max_length=255, default="Unknown Product")  # หรือค่าที่เหมาะสม
+    product_description = models.TextField(blank=True, null=True)  # ✅ คำอธิบายสินค้า ณ ตอนนั้น
     quantity = models.PositiveIntegerField()
-    price = models.DecimalField(max_digits=10, decimal_places=2)
+    price = models.DecimalField(max_digits=10, decimal_places=2)  # ✅ เก็บราคาสินค้าตอนสั่ง
+    total_price = models.DecimalField(max_digits=10, decimal_places=2, default=0.00, editable=False)
 
-    def total_amount(self):
-        return self.quantity * self.price
+    def save(self, *args, **kwargs):
+        """ คำนวณ total_price ก่อนบันทึก """
+        self.total_price = self.quantity * self.price
+        super().save(*args, **kwargs)
+
+    def __str__(self):
+        return f"{self.product_name} x {self.quantity} ({self.total_price} บาท)"
+
 
 
 
