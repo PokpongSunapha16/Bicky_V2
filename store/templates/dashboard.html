@@ -1,83 +1,15 @@
 {% extends "base.html" %}
-{% load static %}
+{% load plotly_dash %}
+
 {% block content %}
-<!DOCTYPE html>
-<html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Dashboard</title>
-    <link rel="stylesheet" href="{% static 'styles/dash.css' %}">
-</head>
-<body>
     <div class="container">
         <header>
-            <h1>Dashboard</h1>
+            <h1>📊 Sales Dashboard</h1>
             <a href="{% url 'home' %}" class="home-button">⬅️ กลับ</a>
         </header>
-        
-        <div class="charts-container">
-            <!-- ✅ Pie Chart: Product Category Distribution -->
-            <div class="chart-card">
-                {% if pie_chart %}
-                <h2>📊 Product Category Distribution</h2>
-                <div class="chart-wrapper">
-                    <img src="data:image/png;base64,{{ pie_chart }}" alt="Pie Chart">
-                </div>
-                {% else %}
-                <p class="no-data">No data available for Pie Chart.</p>
-                {% endif %}
-            </div>
-            
-            <!-- ✅ Bar Chart: Product Count by Category -->
-            <div class="chart-card">
-                {% if bar_chart %}
-                <h2>📦 Product Count by Category</h2>
-                <div class="chart-wrapper">
-                    <img src="data:image/png;base64,{{ bar_chart }}" alt="Bar Chart">
-                </div>
-                {% else %}
-                <p class="no-data">No data available for Bar Chart.</p>
-                {% endif %}
-            </div>
-            
-            <!-- ✅ Histogram: Product Price Distribution -->
-            <div class="chart-card">
-                {% if price_histogram %}
-                <h2>💰 Product Price Distribution</h2>
-                <div class="chart-wrapper">
-                    <img src="data:image/png;base64,{{ price_histogram }}" alt="Price Histogram">
-                </div>
-                {% else %}
-                <p class="no-data">No data available for Price Histogram.</p>
-                {% endif %}
-            </div>
 
-            <!-- ✅ Line Chart: Sales Trend Over Time -->
-            <div class="chart-card full-width">
-                {% if sales_trend_chart %}
-                <h2>📈 Sales Trend Over Time</h2>
-                <div class="chart-wrapper">
-                    <img src="data:image/png;base64,{{ sales_trend_chart }}" alt="Sales Trend Chart">
-                </div>
-                {% else %}
-                <p class="no-data">No data available for Sales Trend Chart.</p>
-                {% endif %}
-            </div>
-
-            <!-- ✅ Bar Chart: Top 5 Best-Selling Products -->
-            <div class="chart-card">
-                {% if top_products_chart %}
-                <h2>🏆 Top 5 Best-Selling Products</h2>
-                <div class="chart-wrapper">
-                    <img src="data:image/png;base64,{{ top_products_chart }}" alt="Top Products Chart">
-                </div>
-                {% else %}
-                <p class="no-data">No data available for Top Products Chart.</p>
-                {% endif %}
-            </div>
+        <div id="container_iframe">
+            {% plotly_app name="DashboardApp" ratio=1.2 %}
         </div>
     </div>
-</body>
-</html>
 {% endblock %}

@@ -1,4 +1,4 @@
-from django.urls import path
+from django.urls import path,include
 from .views import *
 from . import views
 
@@ -27,7 +27,8 @@ urlpatterns = [
     path("pos/", pos_view, name="pos"),  # ✅ เพิ่มเส้นทาง POS
     path("settings/", settings_view, name="settings"),
 
-    path("dashboard/", dashboard_view, name="dashboard"),  # ✅ เปลี่ยนเป็น dashboard/
+    path("dashboard/", dashboard_view, name="dashboard"), 
+    path('django_plotly_dash/', include('django_plotly_dash.urls')), # ✅ เปลี่ยนเป็น dashboard/
 
 
     path('cart/', cart_view, name='cart_view'),  # ✅ ต้องมี path นี้

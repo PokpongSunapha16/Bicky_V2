@@ -17,12 +17,11 @@ INSTALLED_APPS = [
     'django.contrib.messages',
     'django.contrib.staticfiles',
     'store',
-
-    'django_plotly_dash.apps.DjangoPlotlyDashConfig',
+    'django_plotly_dash',  # ✅ คงเหลืออันเดียว
     'dpd_static_support',
     'channels',
-
 ]
+
 
 MIDDLEWARE = [
     'django.middleware.security.SecurityMiddleware',
@@ -81,6 +80,8 @@ STATIC_URL = '/static/'
 STATICFILES_DIRS = [
     BASE_DIR / "store/static",  # ✅ กำหนด static ไว้ที่ root folder
 ]
+
+X_FRAME_OPTIONS = 'SAMEORIGIN'  # ✅ อนุญาตให้ฝัง iframe เฉพาะเว็บเดียวกัน
 
 # STATIC_ROOT = BASE_DIR / "staticfiles"  # ✅ ใช้สำหรับ collectstatic ใน production
 
