@@ -469,78 +469,70 @@ def decimal_to_float(obj):
         return float(obj)  # ✅ แปลง Decimal เป็น float
     raise TypeError
 
-# ป้องกัน customer ไม่ให้เข้าถึง dashboard
-from django.contrib.auth.decorators import login_required, user_passes_test
 from django.shortcuts import render
-# from django_plotly_dash.dashboard import DjangoDash
-from store.models import Order, Product, CustomUser
-import pandas as pd
-import plotly.express as px
-from dash import dcc, html
-from dash.dependencies import Input, Output
-import json
-from django_plotly_dash import DjangoDash
-
-# ✅ ตรวจสอบว่า user ไม่ใช่ customer
-def is_not_customer(user):
-    return user.is_authenticated and user.role != "customer"
-
-# ✅ แปลง Decimal เป็น Float เพื่อใช้ใน JSON
-def decimal_to_float(obj):
-    if isinstance(obj, (int, float)):
-        return obj
-    elif hasattr(obj, "quantize"):  # Decimal
-        return float(obj)
-    return str(obj)
-
-# ✅ เปลี่ยน Django View เป็น Dash App
-import pandas as pd
-import plotly.express as px
-from dash import dcc, html
-from dash.dependencies import Input, Output
-from django_plotly_dash import DjangoDash
-from store.models import Order, OrderItem
+from django.contrib.auth.decorators import login_required, user_passes_test
+from store.models import Order, OrderItem, Product, StorePayment
 from django.db.models import Sum, Count
-from datetime import datetime
+import pandas as pd
+import plotly.express as px
+from dash import dcc, html
+from dash.dependencies import Input, Output
+from django_plotly_dash import DjangoDash
+
+# ✅ ตรวจสอบว่าเป็น Admin หรือไม่
+def is_admin(user):
+    return user.is_authenticated and user.role == "admin"
+
+# ✅ Django View ที่ใช้แสดง Dash ใน Template
+@login_required
+@user_passes_test(is_admin, login_url="home")
+def dashboard_view(request):
+    return render(request, "dashboard.html")
 
 # ✅ สร้าง Dash App
 app = DjangoDash("DashboardApp")
 
 # ✅ ฟังก์ชันดึงข้อมูล Order
 def get_order_data():
-    total_sales = Order.objects.filter(status="completed").aggregate(total=Sum("total_amount"))["total"] or 0
-    total_orders = Order.objects.filter(status="completed").count()
-
-    # ✅ แปลง `datetime` และ `Decimal` ให้ถูกต้อง
-    sales_data = Order.objects.filter(status="completed").values("created_at").annotate(total=Sum("total_amount")).order_by("created_at")
-    df_sales = pd.DataFrame(sales_data)
-    if not df_sales.empty:
-        df_sales["created_at"] = df_sales["created_at"].dt.strftime("%Y-%m-%d %H:%M")  # แปลง datetime เป็น string
-        df_sales["total"] = df_sales["total"].astype(float)  # แปลง Decimal เป็น float
-
-    # ✅ คำนวณจำนวน Order ตามสถานะ
+    # ✅ Order Status Distribution
     order_status_data = Order.objects.values("status").annotate(total=Count("id"))
     df_order_status = pd.DataFrame(order_status_data)
 
-    # ✅ ดึงสินค้าขายดี 5 อันดับแรก
-    top_products = OrderItem.objects.values("product__name").annotate(total_sold=Sum("quantity")).order_by("-total_sold")[:5]
+    # ✅ Sales Trend Over Time
+    sales_data = (
+        Order.objects.filter(status="completed")
+        .values("created_at")
+        .annotate(total_sales=Sum("total_amount"))
+        .order_by("created_at")
+    )
+    df_sales = pd.DataFrame(sales_data)
+    if not df_sales.empty:
+        df_sales["created_at"] = pd.to_datetime(df_sales["created_at"]).dt.strftime("%Y-%m-%d")
+        df_sales["total_sales"] = df_sales["total_sales"].astype(float)
+
+    # ✅ Top 5 Best-Selling Products
+    top_products = (
+        OrderItem.objects.values("product__name")
+        .annotate(total_sold=Sum("quantity"))
+        .order_by("-total_sold")[:5]
+    )
     df_top_products = pd.DataFrame(top_products)
 
-    return total_sales, total_orders, df_order_status, df_sales, df_top_products
+    # ✅ Payment Method Distribution
+    payment_data = StorePayment.objects.values("payment_method").annotate(total=Count("id"))
+    df_payment = pd.DataFrame(payment_data)
+
+    return df_order_status, df_sales, df_top_products, df_payment
 
 # ✅ Layout ของ Dash
 app.layout = html.Div([
     html.H1("📊 Sales Dashboard", style={'textAlign': 'center'}),
 
     html.Div([
-        html.Div([html.H3("💰 Total Sales"), html.P(id="total_sales")], className="stat-card"),
-        html.Div([html.H3("🛒 Total Orders"), html.P(id="total_orders")], className="stat-card"),
-    ], className="stats-container"),
-
-    html.Div([
         dcc.Graph(id="order_status_chart"),  # 📊 Order Status Distribution (Pie Chart)
         dcc.Graph(id="sales_trend_chart"),  # 📈 Sales Trend Over Time (Line Chart)
         dcc.Graph(id="top_products_chart"),  # 🏆 Top 5 Best-Selling Products (Bar Chart)
+        dcc.Graph(id="payment_chart"),  # 💳 Payment Method Distribution (Pie Chart)
     ], className="graphs-container"),
 
     html.Button("Reload Data", id="reload_button", n_clicks=0),
@@ -548,34 +540,28 @@ app.layout = html.Div([
 
 # ✅ Callback อัปเดตข้อมูล
 @app.callback(
-    [Output("total_sales", "children"),
-     Output("total_orders", "children"),
-     Output("order_status_chart", "figure"),
+    [Output("order_status_chart", "figure"),
      Output("sales_trend_chart", "figure"),
-     Output("top_products_chart", "figure")],
+     Output("top_products_chart", "figure"),
+     Output("payment_chart", "figure")],
     [Input("reload_button", "n_clicks")]
 )
 def update_dashboard(n_clicks):
-    total_sales, total_orders, df_order_status, df_sales, df_top_products = get_order_data()
-
-    # ✅ ถ้า DataFrame ว่าง ให้กำหนดค่าเริ่มต้น
-    if df_order_status.empty:
-        df_order_status = pd.DataFrame({"status": ["No Data"], "total": [0]})
-    if df_sales.empty:
-        df_sales = pd.DataFrame({"created_at": ["No Data"], "total": [0]})
-    if df_top_products.empty:
-        df_top_products = pd.DataFrame({"product__name": ["No Data"], "total_sold": [0]})
+    df_order_status, df_sales, df_top_products, df_payment = get_order_data()
 
     # ✅ Order Status Distribution (Pie Chart)
     fig_order_status = px.pie(df_order_status, names="status", values="total", title="📊 Order Status Distribution")
 
     # ✅ Sales Trend Over Time (Line Chart)
-    fig_sales_trend = px.line(df_sales, x="created_at", y="total", title="📈 Sales Trend Over Time", markers=True)
+    fig_sales_trend = px.line(df_sales, x="created_at", y="total_sales", title="📈 Sales Trend Over Time", markers=True)
 
     # ✅ Top 5 Best-Selling Products (Bar Chart)
     fig_top_products = px.bar(df_top_products, x="product__name", y="total_sold", title="🏆 Top 5 Best-Selling Products")
 
-    return f"฿{total_sales:,.2f}", total_orders, fig_order_status, fig_sales_trend, fig_top_products
+    # ✅ Payment Method Distribution (Pie Chart)
+    fig_payment = px.pie(df_payment, names="payment_method", values="total", title="💳 Payment Method Distribution")
+
+    return fig_order_status, fig_sales_trend, fig_top_products, fig_payment
 
 
 

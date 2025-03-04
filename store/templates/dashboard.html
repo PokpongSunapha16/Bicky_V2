@@ -1,15 +1,16 @@
-{% extends "base.html" %}
 {% load plotly_dash %}
 
-{% block content %}
-    <div class="container">
-        <header>
-            <h1>📊 Sales Dashboard</h1>
-            <a href="{% url 'home' %}" class="home-button">⬅️ กลับ</a>
-        </header>
-
-        <div id="container_iframe">
-            {% plotly_app name="DashboardApp" ratio=1.2 %}
-        </div>
-    </div>
-{% endblock %}
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Sales Dashboard</title>
+</head>
+<body>
+    <h1>📊 Sales Dashboard</h1>
+    
+    <!-- ✅ แสดง Dash App -->
+    {% plotly_app name="DashboardApp" %}
+</body>
+</html>
