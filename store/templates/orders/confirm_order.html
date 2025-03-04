@@ -1,5 +1,6 @@
 {% extends "base.html" %}
 {% load static %}
+{% load humanize %}
 {% block content %}
 <!DOCTYPE html>
 <html lang="th">
@@ -31,18 +32,21 @@
                     <tr>
                         <td>{{ item.product.name }}</td>
                         <td>{{ item.quantity }}</td>
-                        <td>{{ item.product.price|floatformat:2 }}</td>
-                        <td>{{ item.total_price|floatformat:2 }}</td>
+                        <td>{{ item.product.price|floatformat:0|intcomma }}</td>
+                        <td>{{ item.total_price|floatformat:0|intcomma }}</td> <!-- ✅ ใช้ค่าที่คำนวณจาก views.py -->
                     </tr>
                     {% endfor %}
                 </tbody>
                 <tfoot class="table-light">
                     <tr>
-                        <th colspan="3" class="text-end">ยอดรวมทั้งหมด:</th>
-                        <th class="text-success fs-5">{{ total_price|floatformat:2 }} บาท</th>
+                        <td colspan="3" class="text-end"><b>ยอดรวมทั้งหมด</b></td>
+                </tbody>
+                </tbody>
+                        <td class="text-success fs-5"><b>{{ total_price|floatformat:0|intcomma }} บาท</b></td>
                     </tr>
                 </tfoot>
             </table>
+            
         </div>
 
         <!-- ✅ ปุ่มย้อนกลับและยืนยัน -->

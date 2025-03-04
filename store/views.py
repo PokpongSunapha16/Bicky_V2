@@ -315,16 +315,30 @@ def sales_report(request):
 @login_required
 def confirm_order(request):
     cart_items = Cart.objects.filter(customer=request.user)
+
     if not cart_items.exists():
         messages.error(request, "❌ ตะกร้าของคุณว่างเปล่า!")
         return redirect("cart_view")
 
-    total_price = sum(item.product.price * item.quantity for item in cart_items)
+    # ✅ คำนวณราคารวมของแต่ละสินค้าในตะกร้า
+    for item in cart_items:
+        item.total_price = item.product.price * item.quantity  # คำนวณราคาต่อรายการสินค้า
 
-    return render(request, "orders/confirm_order.html", {  # ✅ แก้ให้ถูกต้อง
+    # ✅ คำนวณราคารวมทั้งหมดของคำสั่งซื้อ
+    total_price = sum(item.total_price for item in cart_items)
+
+    # 🔍 Debugging เพื่อเช็คค่าต่างๆ ใน Terminal
+    print("🔎 DEBUG: แสดงสินค้าทั้งหมดในตะกร้า")
+    for item in cart_items:
+        print(f"➡ {item.product.name}: {item.quantity} x {item.product.price} = {item.total_price}")
+    print(f"🟢 Total Price = {total_price}")
+
+    return render(request, "orders/confirm_order.html", {
         "cart_items": cart_items,
         "total_price": total_price
     })
+
+
 
 
 

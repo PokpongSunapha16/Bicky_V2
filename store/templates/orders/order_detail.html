@@ -1,5 +1,6 @@
 {% extends "base.html" %}
 {% load static %}
+{% load humanize %}
 {% block content %}
 <!DOCTYPE html>
 <html lang="th">
@@ -18,7 +19,7 @@
         <div class="card shadow p-4">
             <h4>🆔 หมายเลขออเดอร์ : {{ order.id }}</h4>
             <p>📅 วันที่สั่งซื้อ : {{ order.created_at|date:"d/m/Y H:i" }}</p>
-            <p>💰 ยอดรวม : <strong class="text-success fs-4">{{ order.total_amount|floatformat:0 }} บาท</strong></p>
+            <p>💰 ยอดรวม : <strong class="text-success fs-4">{{ order.total_amount|floatformat:0|intcomma }} บาท</strong></p>
             <p>🚚 สถานะ : 
                 {% if order.status == "pending" %}
                     <span class="badge bg-warning text-dark">รอดำเนินการ</span>
@@ -53,8 +54,8 @@
                 <tr>
                     <td>{{ item.product.name }}</td>
                     <td>{{ item.quantity }}</td>
-                    <td>{{ item.price|floatformat:0 }}</td>
-                    <td>{{ order.total_amount|floatformat:0 }}</td>
+                    <td>{{ item.price|floatformat:0|intcomma }}</td>
+                    <td>{{ order.total_amount|floatformat:0|intcomma }}</td>
                 </tr>
                 {% endfor %}
             </tbody>

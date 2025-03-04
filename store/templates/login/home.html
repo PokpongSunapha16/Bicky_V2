@@ -1,5 +1,6 @@
 {% extends "base.html" %}
 {% load static %}
+{% load humanize %}
 {% block content %}
 <!DOCTYPE html>
 <html lang="th">
@@ -65,7 +66,7 @@
                 </div>
                 <div class="product-info">
                     <h3 class="product-title">{{ product.name }}</h3>
-                    <div class="product-price">💎 ฿{{ product.price }}</div>
+                    <div class="product-price">💎 {{ product.price|floatformat:0|intcomma }} บาท</div>
                     {% if request.user.is_authenticated and request.user.role != "admin" %}
                     <div class="product-actions">
                         <form action="{% url 'add_to_cart' product.id %}" method="post">

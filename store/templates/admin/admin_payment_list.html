@@ -1,5 +1,6 @@
 {% extends "base.html" %}
 {% load static %}
+{% load humanize %}
 {% block content %}
 <!DOCTYPE html>
 <html lang="th">
@@ -48,7 +49,7 @@
                 <tr>
                     <td>{{ order.id }}</td>
                     <td>{{ order.created_at|date:"d/m/Y H:i" }}</td>
-                    <td>{{ order.total_amount|floatformat:2 }} บาท</td>
+                    <td>{{ order.total_amount|floatformat:0|intcomma }} บาท</td>
                     <td>
                         {% if order.status == "pending" %}
                             <span class="badge bg-warning text-dark">⌛ รอดำเนินการ</span>

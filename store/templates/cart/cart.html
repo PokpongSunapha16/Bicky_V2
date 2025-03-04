@@ -1,5 +1,6 @@
 {% extends "base.html" %}
 {% load static %}
+{% load humanize %}
 {% block content %}
 <!DOCTYPE html>
 <html lang="th">
@@ -46,7 +47,7 @@
                             </form>
                         </td>                        
                         
-                        <td>฿{{ item.total_price }}</td>
+                        <td>{{ item.total_price|floatformat:0|intcomma }}</td>
 
                         <td>
                             <a href="{% url 'remove_from_cart' item.id %}" class="btn btn-danger">ลบ</a>
@@ -56,7 +57,7 @@
                 </tbody>
             </table>
 
-            <h4 class="text-end">💰 ราคารวมทั้งหมด: <strong>฿{{ total_price }}</strong></h4>
+            <h4 class="text-end">💰 ราคารวมทั้งหมด <strong>{{ total_price|floatformat:0|intcomma }} บาท</strong></h4>
 
             <div class="d-flex justify-content-between mt-4">
                 <a href="{% url 'home' %}" class="btn btn-secondary">⬅ ย้อนกลับ</a>

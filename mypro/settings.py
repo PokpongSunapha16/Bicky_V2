@@ -20,6 +20,7 @@ INSTALLED_APPS = [
     'django_plotly_dash',  # ✅ คงเหลืออันเดียว
     'dpd_static_support',
     'channels',
+    'django.contrib.humanize',
 ]
 
 

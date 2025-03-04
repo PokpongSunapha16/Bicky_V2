@@ -1,5 +1,6 @@
 {% extends "base.html" %}
 {% load static %}
+{% load humanize %}
 {% block content %}
 <!DOCTYPE html>
 <html lang="th">
@@ -18,7 +19,7 @@
         <div class="card shadow p-4 mt-4">
             <h4>📌 รายละเอียดคำสั่งซื้อ</h4>
             <p>หมายเลขออเดอร์: <strong>{{ order.id }}</strong></p>
-            <p>ยอดรวม: <strong class="text-success fs-4">{{ order.total_amount|floatformat:2 }} บาท</strong></p>
+            <p>ยอดรวม: <strong class="text-success fs-4">{{ order.total_amount|floatformat:0|intcomma }} บาท</strong></p>
         </div>
 
         <!-- ✅ ฟอร์มเลือกวิธีชำระเงิน -->
